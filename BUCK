@@ -15,6 +15,7 @@ cxx_library(
   compiler_flags = [
     '/EHsc',
   ],
+  deps = ['//libzmq:libzmq', '//cppzmq:cppzmq'],
   visibility = ['PUBLIC']
 )
 
@@ -24,6 +25,6 @@ cxx_binary(
   compiler_flags = [
     '/EHsc',
   ],
-  deps = [':blackjack','libzmq//:libzmq'],
+  deps = [':blackjack'],
   visibility = ['PUBLIC']
 )
