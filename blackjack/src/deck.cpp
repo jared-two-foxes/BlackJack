@@ -15,7 +15,7 @@ deck_t new_deck() {
     }
   }
 
-  return shuffle(deck);
+  return deck;
 }
 
 deck_t shuffle(deck_t& d) {
