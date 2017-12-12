@@ -10,4 +10,6 @@ struct hand_t
   int bet; //< amount that the player has bet on this hand at this stage.
 };
 
+int count(hand_t& );
+
 #endif // BLACKJACK_HAND_H__

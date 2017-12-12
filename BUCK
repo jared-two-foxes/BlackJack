@@ -21,6 +21,9 @@ cxx_library(
 cxx_binary(
   name = 'main',
   srcs = ['blackjack/apps/main.cpp'],
-  deps = [':blackjack'],
+  compiler_flags = [
+    '/EHsc',
+  ],
+  deps = [':blackjack','libzmq//:libzmq'],
   visibility = ['PUBLIC']
 )
