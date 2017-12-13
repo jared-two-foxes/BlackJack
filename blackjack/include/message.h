@@ -1,7 +1,7 @@
 #ifndef BLACKJACK_MESSAGE_H__
 #define BLACKJACK_MESSAGE_H__
 
-enum Message {
+enum class Message {
     // player commands
     JOIN,
     BET,

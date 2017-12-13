@@ -5,10 +5,10 @@
 #include <blackjack/player.h>
 #include <vector>
 
-enum TableState
+enum class TableState
 {
     WAITING_TO_START,
-    WAITING_FOR_PLAYERS,
+    WAITING_ON_PLAYERS,
     REWARD
 };
 
@@ -25,7 +25,8 @@ void addPlayer(table_t& , player_t& player);
 void dealIn(table_t& );
 void deal(table_t& );
 bool allBetsIn(table_t& );
-bool checkHands(table_t& )
+bool allActionsIn(table_t& );
+void checkHands(table_t& );
 bool allOut(table_t& );
 
 #endif // BLACKJACK_TABLE_H__

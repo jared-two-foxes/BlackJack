@@ -1,5 +1,7 @@
 
+#include <blackjack/message.h>
 #include <blackjack/table.h>
+#include <blackjack/timer.h>
 
 #include <zmq.hpp>
 
@@ -37,7 +39,7 @@ int main(int argc, char* argv) {
   table_t table = createTable();
 
   // Wait for begin timer to count down.
-  table.state = WAITING_TO_START;
+  table.state = TableState::WAITING_TO_START;
   wait(timer, 120.0f); //< Wait 2 minutes
 
   // player_t player_1, player_2;
@@ -49,7 +51,7 @@ int main(int argc, char* argv) {
     //@todo - poll for the next message in the queue.
     message_t msg;
 
-    if (msg.cmd == JOIN) {
+    if (msg.cmd == Message::JOIN) {
       if (table.state == TableState::WAITING_TO_START && table.players.size() < 8 ) { //validate
         player_t player;
         player.identifier = msg.player_id;
@@ -61,18 +63,21 @@ int main(int argc, char* argv) {
         //@todo - failure response if there was no room for player etc.
       }
     }
-    else if (msg.cmd == MEssage::BET && TableState::WAITING_ON_PLAYERS) {
+    else if (msg.cmd == Message::BET && table.state == TableState::WAITING_ON_PLAYERS) {
       //
     }
 
     if (table.state == TableState::WAITING_TO_START) {
       if (complete(timer)) {
+        // Prepare the table!
+
         // Create a new deck for play.
         deck_t deck = new_deck();
         table.deck = shuffle(deck);
 
         // @todo - add a step that allows players to be seated at the
-        //         table but not active this round.
+        //         table but not active this round.  Use allBetsIn to determine
+        //         which players want to be active this round.
 
         dealIn(table);
 
@@ -82,7 +87,7 @@ int main(int argc, char* argv) {
         table.dealer.action = Action::UNKNOWN;
 
         // deal each player at the table 2 cards.
-        deal(table)
+        deal(table);
         deal(table);
 
         // Check for anyone that has gone blackjack.
@@ -94,10 +99,12 @@ int main(int argc, char* argv) {
       }
     }
     else if (table.state == TableState::WAITING_ON_PLAYERS) {
-      if (complete(timer) || allBetsIn(table)) {
+      if (complete(timer) || allActionsIn(table)) {
         // Deal another card to everyone that wants everyone
         deal(table);
         checkHands(table);
+
+        //@todo handle case whereby the dealer is no longer ACTIVE
 
         if (allOut(table)) {
           table.state = TableState::REWARD;
@@ -108,8 +115,6 @@ int main(int argc, char* argv) {
         }
       }
     }
-
-
   }
 
   return -1;

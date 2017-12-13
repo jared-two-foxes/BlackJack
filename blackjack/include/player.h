@@ -6,7 +6,7 @@
 
 struct player_t
 {
-  int identitfier;
+  int identifier;
   std::vector<hand_t > hands;
 };
 

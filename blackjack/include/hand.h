@@ -4,13 +4,14 @@
 #include <blackjack/card.h>
 #include <vector>
 
-enum HandState {
+enum class HandState {
   ACTIVE,
+  HOLDING,
   DEAD,
   WON
 };
 
-enum Action {
+enum class Action {
   UNKNOWN,
   HIT,
   HOLD
@@ -21,7 +22,6 @@ struct hand_t
   HandState state;
   Action action;
   std::vector<card_t > cards;
-  int bet; //< amount that the player has bet on this hand at this stage.
 };
 
 int count(hand_t& );
