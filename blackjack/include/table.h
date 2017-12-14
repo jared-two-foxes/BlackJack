@@ -29,4 +29,7 @@ bool allActionsIn(table_t& );
 void checkHands(table_t& );
 bool allOut(table_t& );
 
+
+void printToConsole(table_t& );
+
 #endif // BLACKJACK_TABLE_H__

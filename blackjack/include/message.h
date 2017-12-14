@@ -2,6 +2,8 @@
 #define BLACKJACK_MESSAGE_H__
 
 enum class Message {
+    UNKNOWN,
+
     // player commands
     JOIN,
     BET,
@@ -13,6 +15,7 @@ enum class Message {
 struct message_t
 {
   int player_id;
+  int hand_id;
   Message cmd;
 };
 

@@ -1,6 +1,9 @@
 
 #include <blackjack/table.h>
 
+#include <iostream>
+
+
 table_t createTable() {
   table_t table;
   return table;
@@ -88,4 +91,32 @@ bool allOut(table_t& t) {
     }
   }
   return allOut;
+}
+
+
+
+
+std::string toString(TableState state) {
+  if (state == TableState::WAITING_TO_START) {
+    return "Waiting to start.";
+  }
+  else if (state == TableState::WAITING_ON_PLAYERS) {
+    return "Waiting on players.";
+  }
+  else if (state == TableState::REWARD) {
+    return "Reward";
+  }
+
+  return "Unknown State";
+}
+
+void printToConsole(table_t& t) {
+  std::cout << "State: " << std::to_string((int)t.state) << ", " << toString(t.state) << std::endl;
+  std::cout << "Players: " << std::to_string(t.players.size()) << std::endl;
+  for (player_t& p : t.players) {
+    for (hand_t& h : p.hands) {
+      std::cout << std::to_string(h.identifier) << " (" << std::to_string(p.identifier) << "): " << toString(h) << std::endl;
+    }
+  }
+  std::cout << "Dealers Hand: " << toString(t.dealer) << std::endl;
 }
