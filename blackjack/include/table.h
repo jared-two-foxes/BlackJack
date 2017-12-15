@@ -14,8 +14,8 @@ enum class TableState
 
 struct table_t
 {
-  deck_t deck;
   TableState state;
+  deck_t deck;
   std::vector<player_t > players;
   hand_t dealer;
 };
@@ -30,6 +30,8 @@ void checkHands(table_t& );
 bool allOut(table_t& );
 
 
+std::size_t calculateSize(table_t& );
+char* serialize(table_t&, char* );
 void printToConsole(table_t& );
 
 #endif // BLACKJACK_TABLE_H__

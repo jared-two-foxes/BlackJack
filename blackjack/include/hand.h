@@ -28,6 +28,7 @@ struct hand_t
 };
 
 int count(hand_t& );
+char* serialize(hand_t&, char* );
 std::string toString(hand_t& );
 
 #endif // BLACKJACK_HAND_H__

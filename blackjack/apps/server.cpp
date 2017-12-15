@@ -13,20 +13,11 @@
 
 
 zmq::message_t setupTableStateMessage(table_t& t) {
-  std::size_t size = sizeof(table_t);
-  for (player_t& p : t.players) {
-    size += sizeof(player_t);
-    for (hand_t& h : p.hands) {
-      size += sizeof(hand_t);
-      size += (sizeof(card_t) * h.cards.size());
-    }
-  }
-
   // Print the current state to console.
   printToConsole(t);
 
-  zmq::message_t msg(size);
-  memcpy(msg.data(), &t, size);
+  zmq::message_t msg(calculateSize(t));
+  serialize(t, &msg);
 
   return msg;
 }
@@ -52,8 +43,8 @@ int main(int argc, char* argv) {
     listener->bind( listenerEndPoint );
 
     // Set the subscriber socket to only keep the most recent message, dont care about any other messages.
-    int conflate = 1;
-    publisher->setsockopt( ZMQ_CONFLATE, &conflate, sizeof( conflate ) );
+    //int conflate = 1;
+    //publisher->setsockopt( ZMQ_CONFLATE, &conflate, sizeof( conflate ) );
   }
   catch ( zmq::error_t e ) {
     std::cout << e.what() << std::endl;
@@ -70,16 +61,15 @@ int main(int argc, char* argv) {
 
   // Wait for begin timer to count down.
   table.state = TableState::WAITING_TO_START;
-  wait(timer, 120.0f); //< Wait 2 minutes
+  //wait(timer, 120.0f); //< Wait 2 minutes
+  wait(timer, 10.0f); //< Wait 10 seconds
 
   while (1) {
-
-    // Poll for the next message in the queue.
-    message_t msg;
 
     zmq::message_t request;
     if (listener->recv(&request, ZMQ_NOBLOCK))
     {
+      message_t msg;
       memcpy(&msg, request.data(), sizeof(message_t));
 
       if (msg.cmd == Message::JOIN) {
@@ -97,7 +87,7 @@ int main(int argc, char* argv) {
 
           // Broadcast state change
           zmq::message_t msg = setupTableStateMessage(table);
-          publisher->send(&msg, ZMQ_NOBLOCK);
+          publisher->send(msg, ZMQ_NOBLOCK);
         }
       }
       else if (msg.cmd == Message::BET && table.state == TableState::WAITING_ON_PLAYERS) {
@@ -143,8 +133,7 @@ int main(int argc, char* argv) {
 
         // Broadcast state change
         zmq::message_t msg = setupTableStateMessage(table);
-        std::cout << "Table State msg size: " << std::to_string(msg.size()) << std::endl;
-        publisher->send(&msg, ZMQ_NOBLOCK);
+        publisher->send(msg, ZMQ_NOBLOCK);
       }
     }
     else if (table.state == TableState::WAITING_ON_PLAYERS) {

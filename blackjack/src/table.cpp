@@ -94,7 +94,25 @@ bool allOut(table_t& t) {
 }
 
 
+std::size_t calculateSize(table_t& t) {
+  std::size_t size = sizeof(table_t);
+  for (player_t& p : t.players) {
+    size += sizeof(player_t);
+    for (hand_t& h : p.hands) {
+      size += sizeof(hand_t);
+      size += (sizeof(card_t) * h.cards.size());
+    }
+  }
+  return size;
+}
 
+char* serialize(table_t& t, char* data ) {
+  data = serialize(t.state, data);
+  data = serialize(t.deck, data);
+  data = serialize(t.players, data);
+  data = serialize(t.dealer, data);
+  return data;
+}
 
 std::string toString(TableState state) {
   if (state == TableState::WAITING_TO_START) {

@@ -10,7 +10,6 @@
 #include <iostream>
 #include <memory>
 
-
 std::string GetLineFromCin() {
     std::string line;
     std::getline(std::cin, line);
@@ -18,6 +17,8 @@ std::string GetLineFromCin() {
 }
 
 int main(int argc, char* argv) {
+
+  using namespace std::chrono_literals;
 
   const std::string publisherEndPoint = "tcp://localhost:5556";
   const std::string listenerEndPoint = "tcp://localhost:5555";
@@ -35,15 +36,16 @@ int main(int argc, char* argv) {
 
   try {
     subscriberSocket->connect( publisherEndPoint );
-    serverSocket->connect( listenerEndPoint );
 
     // Setting subscription to all events. Argument is not currently supported, server doesnt push an identifier yet.
     const char* filter = ""; //( argc > 1 ) ? argv[1] : "";
     subscriberSocket->setsockopt( ZMQ_SUBSCRIBE, filter, strlen( filter ) );
 
     // Set the subscriber socket to only keep the most recent message, dont care about any other messages.
-    int conflate = 1;
-    subscriberSocket->setsockopt( ZMQ_CONFLATE, &conflate, sizeof( conflate ) );
+    //int conflate = 1;
+    //subscriberSocket->setsockopt( ZMQ_CONFLATE, &conflate, sizeof( conflate ) );
+
+    serverSocket->connect( listenerEndPoint );
   }
   catch ( zmq::error_t e ) {
     std::cout << e.what() << std::endl;
@@ -62,12 +64,10 @@ int main(int argc, char* argv) {
     zmq::message_t tableStateMsg;
     if (subscriberSocket->recv(&tableStateMsg, ZMQ_NOBLOCK)) {
       std::cout << "Table State Message size: " << std::to_string(tableStateMsg.size()) << std::endl;
-      if (tableStateMsg.size() > 0) {
-        memcpy(&table, tableStateMsg.data(), tableStateMsg.size());
-
+      if (tableStateMsg.size() >= sizeof(TableState)) {
+        memcpy(&table, tableStateMsg.data(), sizeof(TableState));
         std::cout << "Table State updated!" << std::endl;
         printToConsole(table);
-
         std::cout << "Action: ";
       }
     }
