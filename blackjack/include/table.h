@@ -3,6 +3,7 @@
 
 #include <blackjack/deck.h>
 #include <blackjack/player.h>
+
 #include <vector>
 
 enum class TableState
@@ -31,7 +32,8 @@ bool allOut(table_t& );
 
 
 std::size_t calculateSize(table_t& );
-char* serialize(table_t&, char* );
 void printToConsole(table_t& );
+
+
 
 #endif // BLACKJACK_TABLE_H__

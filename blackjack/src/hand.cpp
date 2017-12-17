@@ -9,14 +9,6 @@ int count(hand_t& hand) {
   return v;
 }
 
-char* serialize(hand_t& h, char* data) {
-  data = serialize(h.identifier, data);
-  data = serialize(h.state, data);
-  data = serialize(h.action, data);
-  data = serialize(h.cards, data);
-  return data;
-}
-
 std::string suitToString(char suit) {
   switch (suit) {
   case 0:

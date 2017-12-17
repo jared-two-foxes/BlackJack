@@ -2,6 +2,7 @@
 #include <blackjack/message.h>
 #include <blackjack/table.h>
 #include <blackjack/timer.h>
+#include <blackjack/serialize.h>
 
 #include <zmq.hpp>
 
@@ -17,7 +18,7 @@ zmq::message_t setupTableStateMessage(table_t& t) {
   printToConsole(t);
 
   zmq::message_t msg(calculateSize(t));
-  serialize(t, &msg);
+  serialize(t, (char*)msg.data());
 
   return msg;
 }

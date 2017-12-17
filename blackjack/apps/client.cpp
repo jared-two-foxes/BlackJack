@@ -3,6 +3,8 @@
 #include <blackjack/table.h>
 #include <blackjack/timer.h>
 
+#include <blackjack/serialize.h>
+
 #include <zmq.hpp>
 
 #include <chrono>
@@ -64,8 +66,10 @@ int main(int argc, char* argv) {
     zmq::message_t tableStateMsg;
     if (subscriberSocket->recv(&tableStateMsg, ZMQ_NOBLOCK)) {
       std::cout << "Table State Message size: " << std::to_string(tableStateMsg.size()) << std::endl;
-      if (tableStateMsg.size() >= sizeof(TableState)) {
-        memcpy(&table, tableStateMsg.data(), sizeof(TableState));
+      if (tableStateMsg.size() >= 0) {
+
+        deserialize((char*)tableStateMsg.data(), &table);
+
         std::cout << "Table State updated!" << std::endl;
         printToConsole(table);
         std::cout << "Action: ";

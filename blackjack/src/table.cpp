@@ -106,13 +106,6 @@ std::size_t calculateSize(table_t& t) {
   return size;
 }
 
-char* serialize(table_t& t, char* data ) {
-  data = serialize(t.state, data);
-  data = serialize(t.deck, data);
-  data = serialize(t.players, data);
-  data = serialize(t.dealer, data);
-  return data;
-}
 
 std::string toString(TableState state) {
   if (state == TableState::WAITING_TO_START) {

@@ -2,6 +2,7 @@
 #define BLACKJACK_DECK_H__
 
 #include <blackjack/card.h>
+
 #include <vector>
 
 struct deck_t
