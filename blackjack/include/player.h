@@ -9,6 +9,8 @@ struct player_t
 {
   int identifier;
   std::vector<hand_t > hands;
+  int wallet;
+  int betValue;
 };
 
 

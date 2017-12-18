@@ -55,7 +55,10 @@ cxx_binary(
 
 cxx_binary(
   name = 'client',
-  srcs = ['blackjack/apps/client.cpp'],
+  srcs = [
+    'blackjack/apps/client.cpp',
+    'blackjack/apps/ClientApplication.cpp',
+  ],
   compiler_flags = [
     '/EHsc',
   ],

@@ -9,7 +9,8 @@
 enum class TableState
 {
     WAITING_TO_START,
-    WAITING_ON_PLAYERS,
+    WAITING_FOR_BETS,
+    WAITING_FOR_ACTIONS,
     REWARD
 };
 
@@ -23,6 +24,7 @@ struct table_t
 
 table_t createTable();
 void addPlayer(table_t& , player_t& player);
+player_t& getPlayer(table_t& , int player_id);
 void dealIn(table_t& );
 void deal(table_t& );
 bool allBetsIn(table_t& );

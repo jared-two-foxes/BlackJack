@@ -11,6 +11,8 @@
 #include <memory>
 
 
+#define BET_AMOUNT  10;
+#define WAIT_PERIOD 20.0;
 
 
 zmq::message_t setupTableStateMessage(table_t& t) {
@@ -63,7 +65,7 @@ int main(int argc, char* argv) {
   // Wait for begin timer to count down.
   table.state = TableState::WAITING_TO_START;
   //wait(timer, 120.0f); //< Wait 2 minutes
-  wait(timer, 10.0f); //< Wait 10 seconds
+  wait(timer, WAIT_PERIOD); //< Wait 10 seconds
 
   while (1) {
 
@@ -78,21 +80,21 @@ int main(int argc, char* argv) {
           player_t player;
           player.identifier = msg.player_id;
 
+          //@todo - failure response if there was no room for player etc.
           //@todo - query some back end database or something to grab a better
           //        representation of the player, ie past winnings etc.
           addPlayer(table, player);
 
           std::cout << "Player Added" << std::endl;
-
-          //@todo - failure response if there was no room for player etc.
-
-          // Broadcast state change
-          zmq::message_t msg = setupTableStateMessage(table);
-          publisher->send(msg, ZMQ_NOBLOCK);
         }
       }
-      else if (msg.cmd == Message::BET && table.state == TableState::WAITING_ON_PLAYERS) {
-        //
+      else if (msg.cmd == Message::BET && table.state == TableState::WAITING_TO_START) {)
+        player_t& p = getPlayer(table, msg.player_id);
+        p.betValue = BET_AMOUNT;
+      }
+      else if (msg.cmd == Message::HIT && table.state == TableState::WAITING_ON_PLAYERS) {
+        //@todo Find the hand requested and set the action requested.
+        hand_t& hand = getHand(table, msg.player_id, msg.hand_id)
       }
 
       zmq::message_t reply(20);
@@ -109,10 +111,17 @@ int main(int argc, char* argv) {
         deck_t deck = new_deck();
         table.deck = shuffle(deck);
 
-        // @todo - add a step that allows players to be seated at the
-        //         table but not active this round.  Use allBetsIn to determine
-        //         which players want to be active this round.
+        // set the table into the next state.
+        wait(timer, WAIT_PERIOD);
+        table.state = TableState::WAITING_FOR_BETS;
 
+        // Broadcast state change
+        zmq::message_t msg = setupTableStateMessage(table);
+        publisher->send(msg, ZMQ_NOBLOCK);
+      }
+    }
+    else if (table.state == TableState::WAITING_FOR_BETS) {
+      if (complete(timer) || allBetsIn(table)) {
         dealIn(table);
 
         // Setup the dealer's hand
@@ -128,16 +137,15 @@ int main(int argc, char* argv) {
         checkHands(table);
 
         // set the table into the next state.
-        wait(timer, 120.0f);
-        table.state = TableState::WAITING_ON_PLAYERS;
-        std::cout << "Changing Table State" << std::endl;
+        wait(timer, WAIT_PERIOD);
+        table.state = TableState::WAITING_FOR_ACTIONS;
 
         // Broadcast state change
         zmq::message_t msg = setupTableStateMessage(table);
         publisher->send(msg, ZMQ_NOBLOCK);
       }
     }
-    else if (table.state == TableState::WAITING_ON_PLAYERS) {
+    else if (table.state == TableState::WAITING_FOR_ACTIONS) {
       if (complete(timer) || allActionsIn(table)) {
         // Deal another card to everyone that wants everyone
         deal(table);
@@ -150,7 +158,7 @@ int main(int argc, char* argv) {
         }
         else {
           //@todo - reset the players state.
-          wait(timer, 120.0f);  // or go again.
+          wait(timer, WAIT_PERIOD);  // or go again.
         }
       }
     }

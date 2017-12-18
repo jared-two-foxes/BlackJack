@@ -60,7 +60,7 @@ char* deserialize(char* buffer, std::vector<T>* obj) {
   buffer = deserialize(buffer, &size);
   obj->resize(size);
   for (int i = 0; i < size; ++i) {
-    buffer = deserialize(&(*obj)[i], buffer);
+    buffer = deserialize(buffer, &(*obj)[i]);
   }
 
   return buffer;
