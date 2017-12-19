@@ -10,9 +10,8 @@
 #include <iostream>
 #include <memory>
 
-
-#define BET_AMOUNT  10;
-#define WAIT_PERIOD 20.0;
+#define BET_AMOUNT  10
+#define WAIT_PERIOD 20.0
 
 
 zmq::message_t setupTableStateMessage(table_t& t) {
@@ -88,13 +87,25 @@ int main(int argc, char* argv) {
           std::cout << "Player Added" << std::endl;
         }
       }
-      else if (msg.cmd == Message::BET && table.state == TableState::WAITING_TO_START) {)
+      else if (msg.cmd == Message::BET && table.state == TableState::WAITING_FOR_BETS) {
         player_t& p = getPlayer(table, msg.player_id);
         p.betValue = BET_AMOUNT;
       }
-      else if (msg.cmd == Message::HIT && table.state == TableState::WAITING_ON_PLAYERS) {
+      else if (msg.cmd == Message::HIT && table.state == TableState::WAITING_FOR_ACTIONS) {
         //@todo Find the hand requested and set the action requested.
-        hand_t& hand = getHand(table, msg.player_id, msg.hand_id)
+        hand_t& hand = getHand(table, msg.player_id, msg.hand_id);
+        hand.action = Action::HIT;
+      }
+      else if (msg.cmd == Message::HOLD && table.state == TableState::WAITING_FOR_ACTIONS) {
+        //@todo Find the hand requested and set the action requested.
+        hand_t& hand = getHand(table, msg.player_id, msg.hand_id);
+        hand.action = Action::HOLD;
+      }
+      else if (msg.cmd == Message::SPLIT && table.state == TableState::WAITING_FOR_ACTIONS) {
+        //@todo Find the hand requested and set the action requested.
+        hand_t& hand = getHand(table, msg.player_id, msg.hand_id);
+        //@todo divide this hand into 2 hands and deal 2 more cards for each of
+        // the hands.
       }
 
       zmq::message_t reply(20);

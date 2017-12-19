@@ -50,7 +50,7 @@ ClientApplication::Run() {
       message_t msg;
       msg.player_id = 0; //< handle this somehow?
 
-      bool OkToSend = ProcessActionRequest( line );
+      bool OkToSend = ProcessActionRequest( line, msg );
       if (OkToSend) {
         // Now send the message to the server.
         zmq::message_t request( sizeof(message_t) );
@@ -65,7 +65,6 @@ ClientApplication::Run() {
       }
     }
   }
-
 }
 
 int
@@ -89,7 +88,10 @@ ClientApplication::SetupCommunicationLayer() {
     }
     catch ( zmq::error_t e ) {
       std::cout << e.what() << std::endl;
+      return -1;
     }
+
+    return 0;
 }
 
 

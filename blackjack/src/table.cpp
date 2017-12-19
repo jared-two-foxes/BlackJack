@@ -13,6 +13,29 @@ void addPlayer(table_t& table, player_t& player) {
   table.players.push_back(player);
 }
 
+player_t& getPlayer(table_t& t, int player_id) {
+  for (player_t& p : t.players) {
+    if (p.identifier == player_id) {
+      return p;
+    }
+  }
+
+  // return a null player?
+  return player_t();
+}
+
+hand_t& getHand(table_t& t, int player_id, int hand_id) {
+  player_t& p = getPlayer(t, player_id);
+  for (hand_t& h : p.hands) {
+    if (h.identifier == hand_id) {
+      return h;
+    }
+  }
+
+  // return a null hand.
+  return hand_t();
+}
+
 void dealIn(table_t& t) {
   // setup a hand for each player
   for(player_t& p : t.players) {
@@ -111,8 +134,11 @@ std::string toString(TableState state) {
   if (state == TableState::WAITING_TO_START) {
     return "Waiting to start.";
   }
-  else if (state == TableState::WAITING_ON_PLAYERS) {
-    return "Waiting on players.";
+  else if (state == TableState::WAITING_FOR_BETS) {
+    return "Waiting for bets.";
+  }
+  else if (state == TableState::WAITING_FOR_ACTIONS) {
+    return "Waiting for actions.";
   }
   else if (state == TableState::REWARD) {
     return "Reward";
