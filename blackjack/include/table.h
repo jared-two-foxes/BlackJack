@@ -8,10 +8,10 @@
 
 enum class TableState
 {
-    WAITING_TO_START,
-    WAITING_FOR_BETS,
-    WAITING_FOR_ACTIONS,
-    REWARD
+  WAITING_TO_START,
+  WAITING_FOR_BETS,
+  WAITING_FOR_ACTIONS,
+  REWARD
 };
 
 struct table_t

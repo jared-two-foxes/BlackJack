@@ -22,7 +22,9 @@ std::string GetLineFromCin() {
 
 
 ClientApplication::ClientApplication()
-{}
+{
+  m_table.state = TableState::WAITING_TO_START;
+}
 
 int
 ClientApplication::Setup() {
@@ -39,6 +41,8 @@ ClientApplication::Run() {
   UpdateActionPrompt();
 
   while (1) {
+    PollForServerUpdate();
+
     if (future.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
       auto line = future.get();
 
@@ -114,6 +118,11 @@ ClientApplication::PollForServerUpdate() {
 
 bool
 ClientApplication::ProcessActionRequest(const std::string& action, message_t& msg) {
+  // First check if we are after a local actions
+  if (action == "printTable") {
+    printToConsole(m_table);
+  }
+
   //@todo validate requested action?
   bool OkToSend = false;
   if (action == "join") {
