@@ -36,16 +36,6 @@ hand_t& getHand(table_t& t, int player_id, int hand_id) {
   return hand_t();
 }
 
-void dealIn(table_t& t) {
-  // setup a hand for each player
-  for(player_t& p : t.players) {
-    p.hands.push_back(hand_t());
-    hand_t& h = p.hands.back();
-    h.state = HandState::ACTIVE;
-    h.action = Action::UNKNOWN;
-  }
-}
-
 void deal(table_t& t) {
   //deal a card to each player
   for(player_t& p : t.players) {

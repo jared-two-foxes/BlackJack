@@ -20,7 +20,7 @@ cxx_library(
     '/D_WIN32',
     '/D_WINDOWS',
   ],
-  deps = ['//libzmq:libzmq', '//cppzmq:cppzmq'],
+  deps = ['//libzmq:libzmq', '//cppzmq:cppzmq', '//cpp-stateless:cpp-stateless'],
   visibility = ['PUBLIC']
 )
 

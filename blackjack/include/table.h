@@ -6,12 +6,22 @@
 
 #include <vector>
 
-enum class TableState
-{
+enum class TableState{
   WAITING_TO_START,
   WAITING_FOR_BETS,
   WAITING_FOR_ACTIONS,
   REWARD
+};
+
+enum class Triggers {
+  // Player Actions.
+  JOIN,
+  BET,
+
+  // Hand Actions.
+  HOLD,
+  HIT,
+  SPLIT
 };
 
 struct table_t
@@ -26,7 +36,6 @@ table_t createTable();
 void addPlayer(table_t& , player_t& player);
 player_t& getPlayer(table_t& , int player_id);
 hand_t& getHand(table_t& , int player_id, int hand_id);
-void dealIn(table_t& );
 void deal(table_t& );
 bool allBetsIn(table_t& );
 bool allActionsIn(table_t& );

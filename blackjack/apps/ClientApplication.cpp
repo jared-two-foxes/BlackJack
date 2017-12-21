@@ -65,6 +65,7 @@ ClientApplication::Run() {
         zmq::message_t reply;
         m_serverSocket->recv( &reply ); //< blocking
 
+        std::cout << std::endl;
         UpdateActionPrompt();
       }
     }
@@ -126,19 +127,19 @@ ClientApplication::ProcessActionRequest(const std::string& action, message_t& ms
   //@todo validate requested action?
   bool OkToSend = false;
   if (action == "join") {
-    msg.cmd = Message::JOIN;
+    msg.cmd = (int)Triggers::JOIN;
     OkToSend = true;
   }
   else if (action == "bet") {
-    msg.cmd = Message::BET;
+    msg.cmd = (int)Triggers::BET;
     OkToSend = true;
   }
   else if (action == "hold") {
-    msg.cmd = Message::HOLD;
+    msg.cmd = (int)Triggers::HOLD;
     OkToSend = true;
   }
   else if (action == "hit") {
-    msg.cmd = Message::HIT;
+    msg.cmd = (int)Triggers::HIT;
     OkToSend = true;
   }
   return OkToSend;

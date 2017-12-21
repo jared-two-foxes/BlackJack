@@ -86,7 +86,9 @@ char* deserialize(char* buffer, player_t* p) {
 
 template <>
 char* deserialize(char* buffer, table_t* t) {
-  buffer = deserialize(buffer, &(t->state));
+  int state;
+  buffer = deserialize(buffer, &state);
+  (t->state) = (TableState)state;
   //data = deserialize(buffer, &(t->deck)); //< we dont actually want anyone to know whats contained here..?
   buffer = deserialize(buffer, &(t->players));
   buffer = deserialize(buffer, &(t->dealer));
