@@ -27,6 +27,7 @@ struct hand_t
   std::vector<card_t > cards;
 };
 
+bool isValid(hand_t& );
 int count(hand_t& );
 std::string toString(hand_t& );
 

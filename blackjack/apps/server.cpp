@@ -10,13 +10,12 @@
 #include <zmq.hpp>
 
 
+#include <functional>
 #include <iostream>
 #include <memory>
 
 #define BET_AMOUNT  10
-#define WAIT_PERIOD 20.0
-
-typedef stateless::state_machine<TableState, Triggers > TStateMachine;
+#define WAIT_PERIOD 60.0
 
 
 zmq::message_t setupTableStateMessage(table_t& t) {
@@ -26,17 +25,15 @@ zmq::message_t setupTableStateMessage(table_t& t) {
 }
 
 // Broadcast state change
-void pushTableState( zmq::socket_t* publisher, table_t& table, TStateMachine& sm ) {
-  std::cout << "Transitioning!!" << std::endl;
-  table.state = sm.state();
+void pushTableState( zmq::socket_t* publisher, table_t& table) {
   printToConsole(table);
   zmq::message_t msg = setupTableStateMessage(table);
   publisher->send(msg, ZMQ_NOBLOCK);
 }
 
 void ProcessMessage(table_t& table, message_t& msg) {
-  Triggers cmd = (Triggers)msg.cmd;
-  if (cmd == Triggers::JOIN) {
+  Trigger cmd = (Trigger)msg.cmd;
+  if (cmd == Trigger::JOIN) {
     player_t player;
     player.identifier = msg.player_id;
 
@@ -46,23 +43,29 @@ void ProcessMessage(table_t& table, message_t& msg) {
     addPlayer(table, player);
     std::cout << "Player Added" << std::endl;
   }
-  else if (cmd == Triggers::BET) {
-    player_t& p = getPlayer(table, msg.player_id);
-    p.betValue = BET_AMOUNT;
+  else if (cmd == Trigger::BET) {
+    player_t* p = getPlayer(table, msg.player_id);
+    if (p != nullptr) {
+      p->betValue = BET_AMOUNT;
+    }
   }
-  else if (cmd == Triggers::HIT) {
+  else if (cmd == Trigger::HIT) {
     //@todo Find the hand requested and set the action requested.
-    hand_t& hand = getHand(table, msg.player_id, msg.hand_id);
-    hand.action = Action::HIT;
+    hand_t* hand = getHand(table, msg.player_id, msg.hand_id);
+    if (hand != nullptr) {
+      hand->action = Action::HIT;
+    }
   }
-  else if (cmd == Triggers::HOLD) {
+  else if (cmd == Trigger::HOLD) {
     //@todo Find the hand requested and set the action requested.
-    hand_t& hand = getHand(table, msg.player_id, msg.hand_id);
-    hand.action = Action::HOLD;
+    hand_t* hand = getHand(table, msg.player_id, msg.hand_id);
+    if (hand != nullptr) {
+      hand->action = Action::HOLD;
+    }
   }
-  else if (cmd == Triggers::SPLIT) {
+  else if (cmd == Trigger::SPLIT) {
     //@todo Find the hand requested and set the action requested.
-    hand_t& hand = getHand(table, msg.player_id, msg.hand_id);
+    hand_t* hand = getHand(table, msg.player_id, msg.hand_id);
     //@todo divide this hand into 2 hands and deal 2 more cards for each of
     // the hands.
   }
@@ -122,7 +125,6 @@ int main(int argc, char* argv) {
 //
 // Setup the Game State.
 //
-  timer_t timer;
   table_t table = createTable();
   std::cout << "table created" << std::endl;
 
@@ -133,33 +135,49 @@ int main(int argc, char* argv) {
   using namespace stateless;
   using namespace std::placeholders;
 
-  // state, trigger?
-  TStateMachine fsm(TableState::WAITING_TO_START);
+  timer_t timer;
+  wait(timer, WAIT_PERIOD);
 
-  fsm
-    .on_transition(std::bind(pushTableState, publisher.get(), table, fsm));
+
+  // state, trigger?
+  state_machine<TableState, Trigger > fsm(TableState::WAITING_TO_START);
+
+  //@todo how to reset the timer for use in the next state.
+  fsm.on_transition( [&](state_machine<TableState, Trigger >::TTransition t) {
+      std::cout << "onTransition (" << (int)t.source() << "," << (int)t.destination() << ")" << std::endl;
+      table.state = fsm.state();
+      pushTableState(publisher.get(), table);
+      wait(timer, WAIT_PERIOD);
+    });
+
+  fsm.on_unhandled_trigger([](const TableState& s, const Trigger& t) {
+      std::cerr << "ignoring unhandled trigger." << std::endl;
+    });
 
   fsm.configure(TableState::WAITING_TO_START)
-    .permit(Triggers::JOIN, TableState::WAITING_FOR_BETS);
+    .permit_if(Trigger::JOIN, TableState::WAITING_FOR_BETS, [&](){return tableFull(table);})
+    .permit(Trigger::TIME, TableState::WAITING_FOR_BETS);
 
   fsm.configure(TableState::WAITING_FOR_BETS)
-    .permit_if(Triggers::BET, TableState::WAITING_FOR_ACTIONS, std::bind(allBetsIn, table))
+    .permit_if(Trigger::BET, TableState::WAITING_FOR_ACTIONS, std::bind(allBetsIn, table))
+    .permit(Trigger::TIME, TableState::WAITING_FOR_ACTIONS)
     .on_entry(std::bind(setupTable, table));
 
   fsm.configure(TableState::WAITING_FOR_ACTIONS)
-    .permit_reentry_if(Triggers::HIT, std::bind(allActionsIn, table))
-    .permit_reentry_if(Triggers::HOLD, std::bind(allActionsIn, table))
-    .on_entry_from(Triggers::BET, std::bind(dealIn, table)) //< first time deal everyones hands
+    .permit_reentry_if(Trigger::HIT, std::bind(allActionsIn, table))
+    .permit_reentry_if(Trigger::HOLD, std::bind(allActionsIn, table))
+    .on_entry_from(Trigger::BET, std::bind(dealIn, table)) //< first time deal everyones hands
     .on_entry(std::bind(deal, table)); //< other times just deal a single card where required.
 
-  // Replace with timed trigger?
-  wait(timer, WAIT_PERIOD);
+
 
 
 //
 // Main Loop.
 //
   while (1) {
+
+    //@todo how to reset the timer for use in the next state.
 
     zmq::message_t request;
     if (listener->recv(&request, ZMQ_NOBLOCK))
@@ -170,8 +188,13 @@ int main(int argc, char* argv) {
       //@todo - Process the command contained in the message.
       ProcessMessage(table, msg);
 
-      // Check to see if we can update the gamestate based upon the passed message.
-      fsm.fire((Triggers)msg.cmd);
+      try {
+        // Check to see if we can update the gamestate based upon the passed message.
+        fsm.fire((Trigger)msg.cmd);
+      }
+      catch (std::exception& e) {
+        std::cout << "Exception thrown during 'fire':\n" << e.what() << std::endl;
+      }
 
       zmq::message_t reply(20);
       snprintf((char*)reply.data(), 20, "OK");
@@ -179,10 +202,14 @@ int main(int argc, char* argv) {
     }
 
     // Fire off any transitions based upon expiring timer?
-    // if (complete(timer)) {
-    //   std::string trigger;
-    //   fsm.fire(trigger);
-    // }
+    if (complete(timer)) {
+      try {
+        fsm.fire(Trigger::TIME);
+      }
+      catch (std::exception& e) {
+        std::cout << "Exception thrown during 'fire':\n" << e.what() << std::endl;
+      }
+    }
   }
 
   return 0;

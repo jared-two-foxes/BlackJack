@@ -13,7 +13,7 @@ enum class TableState{
   REWARD
 };
 
-enum class Triggers {
+enum class Trigger {
   // Player Actions.
   JOIN,
   BET,
@@ -21,7 +21,10 @@ enum class Triggers {
   // Hand Actions.
   HOLD,
   HIT,
-  SPLIT
+  SPLIT,
+
+  // Admin Actions,
+  TIME
 };
 
 struct table_t
@@ -34,9 +37,11 @@ struct table_t
 
 table_t createTable();
 void addPlayer(table_t& , player_t& player);
-player_t& getPlayer(table_t& , int player_id);
-hand_t& getHand(table_t& , int player_id, int hand_id);
+player_t* getPlayer(table_t& , int player_id);
+hand_t* getHand(table_t& , int player_id, int hand_id);
 void deal(table_t& );
+
+bool tableFull(table_t& );
 bool allBetsIn(table_t& );
 bool allActionsIn(table_t& );
 void checkHands(table_t& );

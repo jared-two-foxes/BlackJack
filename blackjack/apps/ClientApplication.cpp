@@ -65,7 +65,6 @@ ClientApplication::Run() {
         zmq::message_t reply;
         m_serverSocket->recv( &reply ); //< blocking
 
-        std::cout << std::endl;
         UpdateActionPrompt();
       }
     }
@@ -99,7 +98,6 @@ ClientApplication::SetupCommunicationLayer() {
     return 0;
 }
 
-
 void
 ClientApplication::PollForServerUpdate() {
   // Check for an updated board state.
@@ -112,6 +110,7 @@ ClientApplication::PollForServerUpdate() {
       printToConsole(m_table);
 #endif
 
+      std::cout << std::endl;
       UpdateActionPrompt();
     }
   }
@@ -127,19 +126,19 @@ ClientApplication::ProcessActionRequest(const std::string& action, message_t& ms
   //@todo validate requested action?
   bool OkToSend = false;
   if (action == "join") {
-    msg.cmd = (int)Triggers::JOIN;
+    msg.cmd = (int)Trigger::JOIN;
     OkToSend = true;
   }
   else if (action == "bet") {
-    msg.cmd = (int)Triggers::BET;
+    msg.cmd = (int)Trigger::BET;
     OkToSend = true;
   }
   else if (action == "hold") {
-    msg.cmd = (int)Triggers::HOLD;
+    msg.cmd = (int)Trigger::HOLD;
     OkToSend = true;
   }
   else if (action == "hit") {
-    msg.cmd = (int)Triggers::HIT;
+    msg.cmd = (int)Trigger::HIT;
     OkToSend = true;
   }
   return OkToSend;

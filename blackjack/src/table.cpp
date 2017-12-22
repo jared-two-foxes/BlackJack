@@ -3,6 +3,8 @@
 
 #include <iostream>
 
+#define MAX_PLAYERS 8
+
 
 table_t createTable() {
   table_t table;
@@ -13,27 +15,27 @@ void addPlayer(table_t& table, player_t& player) {
   table.players.push_back(player);
 }
 
-player_t& getPlayer(table_t& t, int player_id) {
+player_t* getPlayer(table_t& t, int player_id) {
   for (player_t& p : t.players) {
     if (p.identifier == player_id) {
-      return p;
+      return &p;
     }
   }
 
   // return a null player?
-  return player_t();
+  return nullptr;
 }
 
-hand_t& getHand(table_t& t, int player_id, int hand_id) {
-  player_t& p = getPlayer(t, player_id);
-  for (hand_t& h : p.hands) {
+hand_t* getHand(table_t& t, int player_id, int hand_id) {
+  player_t* p = getPlayer(t, player_id);
+  for (hand_t& h : (*p).hands) {
     if (h.identifier == hand_id) {
-      return h;
+      return &h;
     }
   }
 
   // return a null hand.
-  return hand_t();
+  return nullptr;
 }
 
 void deal(table_t& t) {
@@ -49,6 +51,12 @@ void deal(table_t& t) {
 
   //deal a card to the dealers hand.
   t.dealer.cards.push_back(draw(t.deck));
+}
+
+
+bool tableFull(table_t& t) {
+  std::cout << "players: " << t.players.size() << std::endl;
+  return (t.players.size() >= MAX_PLAYERS);
 }
 
 bool allBetsIn(table_t& t) {
