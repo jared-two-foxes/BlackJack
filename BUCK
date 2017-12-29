@@ -26,7 +26,10 @@ cxx_library(
 
 cxx_binary(
   name = 'server',
-  srcs = ['blackjack/apps/server.cpp'],
+  srcs = [
+    'blackjack/apps/server.cpp',
+    'blackjack/apps/ServerApplication.cpp',
+  ],
   compiler_flags = [
     '/EHsc',
   ],

@@ -1,0 +1,9 @@
+cxx_test(
+  name = 'table',
+  srcs = [
+    'table.cpp',
+  ],
+  deps = [
+    '//:blackjack',
+  ],
+)

@@ -1,2 +1,3 @@
 [cxx]
   cxxflags = -std=c++14
+  gtest_dep = //googletest:gtest
