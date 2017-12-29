@@ -7,3 +7,6 @@
 [submodule "cpp-stateless"]
 	path = cpp-stateless
 	url = https://github.com/mattmason/cpp-stateless.git
+[submodule "googletest"]
+	path = googletest
+	url = https://github.com/google/googletest.git
