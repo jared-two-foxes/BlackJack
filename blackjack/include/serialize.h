@@ -20,9 +20,6 @@ char* serialize(std::vector<T>& list, char* data) {
   return data;
 }
 
-
-
-
 template <>
 char* serialize(hand_t& h, char* data) {
   data = serialize(h.identifier, data);
@@ -49,6 +46,8 @@ char* serialize(table_t& t, char* data) {
   return data;
 }
 
+
+
 template <class T>
 char* deserialize(char* buffer, T* obj) {
   memcpy(obj, buffer, sizeof(T));
@@ -66,8 +65,6 @@ char* deserialize(char* buffer, std::vector<T>* obj) {
 
   return buffer;
 }
-
-
 
 template <>
 char* deserialize(char* buffer, hand_t* h) {

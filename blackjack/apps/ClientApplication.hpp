@@ -1,31 +1,26 @@
 #ifndef BLACKJACK_CLIENTAPPLICATION_HPP__
 #define BLACKJACK_CLIENTAPPLICATION_HPP__
 
-#include <blackjack/message.h>
+#include <framework/clientkernel.hpp>
 #include <blackjack/table.h>
 
-#include <zmq.hpp>
-#include <memory>
 
-class ClientApplication
+class ClientApplication : public ClientKernel
 {
 private:
-  table_t                          m_table;
-  std::unique_ptr<zmq::context_t > m_context;
-  std::unique_ptr<zmq::socket_t >  m_subscriberSocket;
-  std::unique_ptr<zmq::socket_t >  m_serverSocket;
+  table_t table_;
+  std::future<std::string > future_;
 
   public:
     ClientApplication();
 
-    int Setup();
-    int Run();
+    virtual void setup(int argc, char** argv);
+    virtual void processMessage(const zmq::message_t& msg);
+    virtual void updateFrame();
 
   private:
-    int SetupCommunicationLayer();
-    void PollForServerUpdate();
-    bool ProcessActionRequest(const std::string& action, message_t& msg);
-    void UpdateActionPrompt();
+    bool _setupRequest(const std::string& action, message_t& msg);
+    void _updateActionPrompt();
 
 };
 

@@ -1,4 +1,30 @@
 cxx_library(
+  name = 'framework',
+  header_namespace = 'framework',
+  srcs = glob([
+    'framework/src/**/*.cpp',
+  ]),
+  headers = subdir_glob([ # private include files
+    ('framework/detail', '**/*.h'), # they are only accessible inside the library
+    ('framework/detail', '**/*.hpp'),
+  ]),
+  exported_headers = subdir_glob([ # public include files
+    ('framework/include', '**/*.h'), # those will be exported
+    ('framework/include', '**/*.hpp'), # and accessible via <framework/header.h>
+  ]),
+  compiler_flags = [
+    '/EHsc',
+  ],
+  preprocessor_flags = [
+    '/DWIN32',
+    '/D_WIN32',
+    '/D_WINDOWS',
+  ],
+  deps = ['//libzmq:libzmq', '//cppzmq:cppzmq'],
+  visibility = ['PUBLIC']
+)
+
+cxx_library(
   name = 'blackjack',
   header_namespace = 'blackjack',
   srcs = glob([
@@ -20,7 +46,7 @@ cxx_library(
     '/D_WIN32',
     '/D_WINDOWS',
   ],
-  deps = ['//libzmq:libzmq', '//cppzmq:cppzmq', '//cpp-stateless:cpp-stateless'],
+  deps = ['//cpp-stateless:cpp-stateless'],
   visibility = ['PUBLIC']
 )
 
@@ -52,7 +78,7 @@ cxx_binary(
     'odbc32.lib',
     'odbccp32.lib',
   ],
-  deps = [':blackjack'],
+  deps = [':blackjack', ':framework'],
   visibility = ['PUBLIC']
 )
 
@@ -84,6 +110,6 @@ cxx_binary(
     'odbc32.lib',
     'odbccp32.lib',
   ],
-  deps = [':blackjack'],
+  deps = [':blackjack', ':framework'],
   visibility = ['PUBLIC']
 )
