@@ -1,5 +1,6 @@
 
 #include "ClientApplication.hpp"
+#include "messagetypes.hpp"
 
 #include <blackjack/message.h>
 #include <blackjack/serialize.h>
@@ -51,8 +52,22 @@ ClientApplication::Run() {
       // io-only thread.
       future = std::async(std::launch::async, GetLineFromCin);
 
+
       message_t msg;
-      msg.player_id = 0; //< handle this somehow?
+
+      if (m_table.players.empty()) {
+        msg.player_id = 0;
+      }
+      else {
+        msg.player_id = m_table.players[0].identifier; //< handle this somehow?
+      }
+
+      if (m_table.players.empty() || m_table.players[0].hands.empty()) {
+        msg.hand_id = -1;
+      }
+      else {
+        msg.hand_id = m_table.hands[0].identifier; //< Also handle this!
+      }
 
       bool OkToSend = ProcessActionRequest( line, msg );
       if (OkToSend) {
@@ -69,6 +84,8 @@ ClientApplication::Run() {
       }
     }
   }
+
+  std::cout << "out" << std::endl;
 }
 
 int
@@ -126,19 +143,19 @@ ClientApplication::ProcessActionRequest(const std::string& action, message_t& ms
   //@todo validate requested action?
   bool OkToSend = false;
   if (action == "join") {
-    msg.cmd = (int)Trigger::JOIN;
+    msg.cmd = (int)MessageTypes::JOIN;
     OkToSend = true;
   }
   else if (action == "bet") {
-    msg.cmd = (int)Trigger::BET;
+    msg.cmd = (int)MessageTypes::BET;
     OkToSend = true;
   }
   else if (action == "hold") {
-    msg.cmd = (int)Trigger::HOLD;
+    msg.cmd = (int)MessageTypes::HOLD;
     OkToSend = true;
   }
   else if (action == "hit") {
-    msg.cmd = (int)Trigger::HIT;
+    msg.cmd = (int)MessageTypes::HIT;
     OkToSend = true;
   }
   return OkToSend;

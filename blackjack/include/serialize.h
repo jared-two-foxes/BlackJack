@@ -41,6 +41,7 @@ char* serialize(player_t& p, char* data) {
 
 template <>
 char* serialize(table_t& t, char* data) {
+  data = serialize(t.identifier, data);
   data = serialize(t.state, data);
   //data = serialize(t.deck, data); //< we dont actually want anyone to know whats contained here..?
   data = serialize(t.players, data);
@@ -86,6 +87,7 @@ char* deserialize(char* buffer, player_t* p) {
 
 template <>
 char* deserialize(char* buffer, table_t* t) {
+  buffer = deserialize(buffer, &(t->identifier));
   int state;
   buffer = deserialize(buffer, &state);
   (t->state) = (TableState)state;

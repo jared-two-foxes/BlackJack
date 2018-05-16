@@ -9,12 +9,12 @@
 enum class HandState {
   ACTIVE,
   HOLDING,
-  DEAD,
+  BUST,
   WON
 };
 
-enum class Action {
-  UNKNOWN,
+enum class HandActions {
+  UNKNOWN = -1,
   HIT,
   HOLD
 };
@@ -22,9 +22,10 @@ enum class Action {
 struct hand_t
 {
   int identifier;
-  HandState state;
-  Action action;
+  int player;
   std::vector<card_t > cards;
+  HandState state;
+  HandActions action;
 };
 
 bool isValid(hand_t& );

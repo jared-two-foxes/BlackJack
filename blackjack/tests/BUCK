@@ -3,6 +3,7 @@ cxx_test(
   srcs = [
     'table.cpp',
   ],
+  framework = 'gtest',
   deps = [
     '//:blackjack',
   ],

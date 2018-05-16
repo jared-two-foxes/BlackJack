@@ -4,13 +4,12 @@
 #include <blackjack/hand.h>
 
 #include <vector>
+//#include <boost/uuid.hpp>
 
 struct player_t
 {
   int identifier;
-  std::vector<hand_t > hands;
-  int wallet;
-  int betValue;
+  std::vector<int > hands; //< identifiers of the hands run by this player?
 };
 
 

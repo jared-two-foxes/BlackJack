@@ -56,6 +56,8 @@ std::string toString(hand_t& h) {
     out += (valueToString(c.value) + suitToString(c.suit));
     out += ","; //< @todo - handle removing this for the last card
   }
-  out += "]";
+  out += "] (";
+  out += std::to_string(h.cards.size());
+  out += ")";
   return out;
 }
