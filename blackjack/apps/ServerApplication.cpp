@@ -11,13 +11,10 @@
 #include <iostream>
 #include <memory>
 
+
 #define BET_AMOUNT  10
 #define WAIT_PERIOD 10.0
 
-const std::string publisherEndPoint = "tcp://*:5556";
-const std::string listenerEndPoint = "tcp://*:5555";
-
-int round_;
 
 zmq::message_t setupTableStateMessage(table_t& t) {
   zmq::message_t msg(calculateSize(t));

@@ -1,5 +1,23 @@
 
 #include <blackjack/hand.h>
+#include <blackjack/serialize.h>
+
+
+char* serialize(hand_t& h, char* data) {
+  data = serialize(h.identifier, data);
+  data = serialize(h.state, data);
+  data = serialize(h.action, data);
+  data = serialize(h.cards, data);
+  return data;
+}
+
+char* deserialize(char* buffer, hand_t* h) {
+  buffer = deserialize(buffer, &(h->identifier));
+  buffer = deserialize(buffer, &(h->state));
+  buffer = deserialize(buffer, &(h->action));
+  
+  return buffer;
+}
 
 bool isValid(hand_t& h ) {
   return (h.identifier != -1);

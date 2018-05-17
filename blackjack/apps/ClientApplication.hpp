@@ -2,7 +2,11 @@
 #define BLACKJACK_CLIENTAPPLICATION_HPP__
 
 #include <framework/clientkernel.hpp>
+
+#include <blackjack/message.h>
 #include <blackjack/table.h>
+
+#include <future>
 
 
 class ClientApplication : public ClientKernel

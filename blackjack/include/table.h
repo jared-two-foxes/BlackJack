@@ -32,6 +32,9 @@ struct table_t
   hand_t dealer;
 };
 
+char* serialize(table_t& t, char* data);
+char* deserialize(char* buffer, table_t* t);
+
 table_t createTable();
 void addPlayer(table_t& , player_t& player);
 player_t* findPlayer(table_t& , int player_id);

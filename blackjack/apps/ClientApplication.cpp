@@ -6,7 +6,7 @@
 #include <blackjack/serialize.h>
 
 #include <chrono>
-#include <future>
+
 #include <iostream>
 
 
@@ -22,19 +22,14 @@ ClientApplication::ClientApplication()
   table_.state = TableState::WAITING_TO_START;
 }
 
-int
-ClientApplication::setup(argc, char** argv) {
+void
+ClientApplication::setup(int argc, char** argv) {
   ClientKernel::setup(argc, argv);
 
   future_ = std::async(std::launch::async, GetLineFromCin);
 
   std::cout << "Blackjack Client!" << std::endl;
   _updateActionPrompt();
-}
-
-int
-ClientApplication::Run() {
-  
 }
 
 void
@@ -53,7 +48,7 @@ void
 ClientApplication::updateFrame() {
   using namespace std::chrono_literals;
 
-  if (future_.wait_for(std::chrono::seconds(0)) == std::future__status::ready) {
+  if (future_.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
     auto line = future_.get();
 
     message_t msg;

@@ -28,6 +28,9 @@ struct hand_t
   HandActions action;
 };
 
+char* serialize(hand_t& h, char* data);
+char* deserialize(char* buffer, hand_t* h);
+
 bool isValid(hand_t& );
 int count(hand_t& );
 std::string toString(hand_t& );

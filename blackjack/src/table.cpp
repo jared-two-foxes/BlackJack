@@ -1,13 +1,35 @@
 
 #include <blackjack/table.h>
 #include <blackjack/identifier.h>
+#include <blackjack/serialize.h>
 
 #include <iostream>
+
 
 #define MAX_PLAYERS 8
 
 int IdentifierGenerator::s_nextIdentifier = 1;
 
+
+char* serialize(table_t& t, char* data) {
+  data = serialize(t.identifier, data);
+  data = serialize(t.state, data);
+  //data = serialize(t.deck, data); //< we dont actually want anyone to know whats contained here..?
+  data = serialize(t.players, data);
+  data = serialize(t.dealer, data);
+  return data;
+}
+
+char* deserialize(char* buffer, table_t* t) {
+  buffer = deserialize(buffer, &(t->identifier));
+  int state;
+  buffer = deserialize(buffer, &state);
+  (t->state) = (TableState)state;
+  //data = deserialize(buffer, &(t->deck)); //< we dont actually want anyone to know whats contained here..?
+  buffer = deserialize(buffer, &(t->players));
+  buffer = deserialize(buffer, &(t->dealer));
+  return buffer;
+}
 
 table_t createTable() {
   return table_t();

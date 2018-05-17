@@ -1,8 +1,9 @@
 
 #include "ClientApplication.hpp"
 
-int main(int argc, char* argv) {
+int main(int argc, char** argv) {
   ClientApplication app;
-  app.Setup();
-  return app.Run();
+  app.setup(argc, argv);
+  int r = app.run();
+  return r;
 }
