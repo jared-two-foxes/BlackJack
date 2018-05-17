@@ -2,6 +2,7 @@
 #define BLACKJACK_CLIENTAPPLICATION_HPP__
 
 #include <framework/clientkernel.hpp>
+#include <framework/terminal.hpp>
 
 #include <blackjack/message.h>
 #include <blackjack/table.h>
@@ -12,6 +13,7 @@
 class ClientApplication : public ClientKernel
 {
 private:
+  framework::VirtualTerminal vt_;
   table_t table_;
   std::future<std::string > future_;
 

@@ -16,6 +16,29 @@ std::string GetLineFromCin() {
     return line;
 }
 
+DWORD setupConsole() {
+  // Set output mode to handle virtual terminal sequences
+  HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+  if (hOut == INVALID_HANDLE_VALUE)
+  {
+      return GetLastError();
+  }
+
+  DWORD dwMode = 0;
+  if (!GetConsoleMode(hOut, &dwMode))
+  {
+      return GetLastError();
+  }
+
+  dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+  if (!SetConsoleMode(hOut, dwMode))
+  {
+      return GetLastError();
+  }
+
+  return 0;
+}
+
 
 ClientApplication::ClientApplication()
 {
@@ -25,6 +48,7 @@ ClientApplication::ClientApplication()
 void
 ClientApplication::setup(int argc, char** argv) {
   ClientKernel::setup(argc, argv);
+  setupConsole();
 
   future_ = std::async(std::launch::async, GetLineFromCin);
 
@@ -35,12 +59,6 @@ ClientApplication::setup(int argc, char** argv) {
 void
 ClientApplication::processMessage(const zmq::message_t& msg) {
   deserialize((char*)msg.data(), &table_);
-
-#if DEBUG_
-  printToConsole(table_);
-#endif
-
-  std::cout << std::endl;
   _updateActionPrompt();
 }
 
@@ -50,21 +68,24 @@ ClientApplication::updateFrame() {
 
   if (future_.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
     auto line = future_.get();
+    vt_.append(line + "\n");
 
     message_t msg;
     if (_setupRequest(line, msg)) {
       postMessageToServer(msg);
-      _updateActionPrompt();
     }
+
+    // Do I need to reset the future, probably.
+    future_ = std::async(std::launch::async, GetLineFromCin);
   }
 }
 
 bool
 ClientApplication::_setupRequest(const std::string& action, message_t& msg) {
-  // First check if we are after a local actions
-  if (action == "printTable") {
-    printToConsole(table_);
-  }
+  // // First check if we are after a local actions
+  // if (action == "printTable") {
+  //   printToConsole(table_);
+  // }
 
   if (table_.players.empty()) {
     msg.player_id = 0;
@@ -103,15 +124,23 @@ ClientApplication::_setupRequest(const std::string& action, message_t& msg) {
 
 void
 ClientApplication::_updateActionPrompt() {
-  std::cout << "Action ";
+  
+  if (table_.state == TableState::DEALING || table_.state == TableState::REWARD) {
+    vt_.flip("Dealing/Rewarding");
+    return; // Dont display anything.
+  }
+
+  std::string s("Action ");
 
   if (table_.state == TableState::WAITING_TO_START) {
-    std::cout << "(join): ";
+    s += "(join): ";
   }
   else if (table_.state == TableState::WAITING_FOR_BETS) {
-    std::cout << "(bet): ";
+    s += "(bet): ";
   }
   else if (table_.state == TableState::WAITING_FOR_ACTIONS) {
-    std::cout << "(bet, hit): ";
+    s += "(bet, hit): ";
   }
+
+  vt_.flip(s);
 }
