@@ -1,2 +1,2 @@
 [cxx]
-  cxxflags = -std=c++14
+  cxxflags = -std=c++17

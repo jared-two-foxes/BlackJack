@@ -1,0 +1,10 @@
+cxx_test(
+  name = 'table',
+  srcs = [
+    'table.cpp',
+  ],
+  framework = 'gtest',
+  deps = [
+    '//:blackjack',
+  ],
+)

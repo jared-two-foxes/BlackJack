@@ -2,28 +2,38 @@
 #define BLACKJACK_HAND_H__
 
 #include <blackjack/card.h>
+
+#include <string>
 #include <vector>
 
-enum HandState {
+enum class HandState {
   ACTIVE,
-  DEAD,
+  HOLDING,
+  BUST,
   WON
 };
 
-enum Action {
-  UNKNOWN,
+enum class HandActions {
+  UNKNOWN = -1,
   HIT,
   HOLD
 };
 
 struct hand_t
 {
-  HandState state;
-  Action action;
+  int identifier;
+  int player;
   std::vector<card_t > cards;
-  int bet; //< amount that the player has bet on this hand at this stage.
+  HandState state;
+  HandActions action;
 };
 
+char* serialize(hand_t& h, char* data);
+char* deserialize(char* buffer, hand_t* h);
+
+bool isValid(hand_t& );
 int count(hand_t& );
+std::string toString(hand_t& );
+
 
 #endif // BLACKJACK_HAND_H__
