@@ -1,5 +1,5 @@
 
-#include <framework/serverkernel.hpp>
+#include <framework/kernel/serverkernel.hpp>
 
 #include <iostream>
 

@@ -5,8 +5,10 @@
 #include <blackjack/messagetypes.hpp>
 #include <blackjack/serialize.h>
 
-#include <chrono>
+#include <framework/terminal/components/stacklayout.hpp>
+#include <framework/terminal/components/text.hpp>
 
+#include <chrono>
 #include <iostream>
 
 
@@ -68,7 +70,7 @@ ClientApplication::updateFrame() {
 
   if (future_.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
     auto line = future_.get();
-    vt_.append(line + "\n");
+    vt_.append(line);
 
     message_t msg;
     if (_setupRequest(line, msg)) {
@@ -125,13 +127,18 @@ ClientApplication::_setupRequest(const std::string& action, message_t& msg) {
 void
 ClientApplication::_updateActionPrompt() {
   
-  if (table_.state == TableState::DEALING || table_.state == TableState::REWARD) {
-    vt_.flip("Dealing/Rewarding");
+
+  if (table_.state == TableState::DEALING) {
+    vt_ = vt_.flip("Dealing");
     return; // Dont display anything.
   }
+  else if (table_.state == TableState::REWARD) {
+    vt_ = vt_.flip("Rewarding");
+    return; // Dont display anything.
+  } 
+
 
   std::string s("Action ");
-
   if (table_.state == TableState::WAITING_TO_START) {
     s += "(join): ";
   }
@@ -142,5 +149,10 @@ ClientApplication::_updateActionPrompt() {
     s += "(bet, hit): ";
   }
 
-  vt_.flip(s);
+  framework::StackLayout<> sl{
+    framework::Text(s),
+    framework::Text("")  
+  };
+  
+  vt_ = vt_.flip(sl.render(80).toString());
 }
