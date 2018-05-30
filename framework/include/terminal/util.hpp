@@ -1,12 +1,12 @@
-#ifndef FRAMEWORK_UTIL_HPP__
-#define FRAMEWORK_UTIL_HPP__
+#ifndef FRAMEWORK_TERMINAL_UTIL_HPP__
+#define FRAMEWORK_TERMINAL_UTIL_HPP__
 
 #include <string>
 
 
 namespace framework {
 
-auto toString(std::string const& x) -> std::string {
+inline auto toString(std::string const& x) -> std::string {
 	return x;
 }
 
@@ -15,7 +15,7 @@ auto toString(T const& x) ->decltype(std::to_string(x)) {
 	return std::to_string(x);
 }
 
-std::vector<std::string > split(std::string const& str, const std::string& delimiter = "\n") {
+inline std::vector<std::string > split(std::string const& str, const std::string& delimiter = "\n") {
 	std::vector<std::string > tokens;
 
 	auto start = 0U;
@@ -43,7 +43,7 @@ auto map(T const& data, F const& f) {
   return result;
 }
 
-std::string repeat(unsigned n, std::string const& s) {
+inline std::string repeat(unsigned n, std::string const& s) {
 	std::string result = "";
 	for (unsigned i = 0; i <n; ++i) {
 		result += s;
@@ -51,26 +51,26 @@ std::string repeat(unsigned n, std::string const& s) {
 	return s;
 }
 
-std::string clearBeforeCursor() {
+inline std::string clearBeforeCursor() {
 	return "\x1b[0K";
 }
 
-std::string clearAfterCursor() {
+inline std::string clearAfterCursor() {
 	return "\x1b[1K";
 }
 
-std::string clearLine() {
+inline std::string clearLine() {
 	return "\x1b[2K\r";
 }
 
-std::string moveUp(unsigned n = 1 ) {
+inline std::string moveUp(unsigned n = 1 ) {
 	return "\x1b[" + std::to_string(n) + "A\r";	
 }	
 
-std::string clearLines(unsigned n = 1) {
+inline std::string clearLines(unsigned n = 1) {
 	return "\x1b[0m" + clearBeforeCursor() + ((n) ? repeat(n, clearLine() + moveUp()) + clearLine() : std::string(""));
 }
 
 }
 
-#endif // FRAMEWORK_UTIL_H__
+#endif // FRAMEWORK_TERMINAL_UTIL_HPP__

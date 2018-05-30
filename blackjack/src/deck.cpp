@@ -3,8 +3,6 @@
 #include <iostream>
 
 deck_t new_deck() {
-  std::cout << "new deck" << std::endl;
-
   deck_t deck;
 
   // fill the deck with all the cards.
@@ -25,7 +23,6 @@ deck_t shuffle(deck_t& d) {
 }
 
 card_t draw(deck_t& d) {
-  std::cout << "draw" << std::endl;
   card_t& c = d.cards.back();
   d.cards.pop_back();
   return c;

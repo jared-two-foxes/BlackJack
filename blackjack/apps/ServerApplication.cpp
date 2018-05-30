@@ -7,6 +7,8 @@
 #include <blackjack/serialize.h>
 #include <blackjack/rules.hpp>
 
+#include "shared/writer.hpp"
+
 #include <functional>
 #include <iostream>
 #include <memory>
@@ -15,6 +17,28 @@
 #define BET_AMOUNT  10
 #define WAIT_PERIOD 10.0
 
+DWORD setupConsole() {
+  // Set output mode to handle virtual terminal sequences
+  HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+  if (hOut == INVALID_HANDLE_VALUE)
+  {
+    return GetLastError();
+  }
+
+  DWORD dwMode = 0;
+  if (!GetConsoleMode(hOut, &dwMode))
+  {
+    return GetLastError();
+  }
+
+  dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+  if (!SetConsoleMode(hOut, dwMode))
+  {
+    return GetLastError();
+  }
+
+  return 0;
+}
 
 zmq::message_t setupTableStateMessage(table_t& t) {
   zmq::message_t msg(calculateSize(t));
@@ -30,7 +54,6 @@ void processJoinMessage(table_t& table, int player_id, int hand_id) {
   //@todo - query some back end database or something to grab a better
   //        representation of the player, ie past winnings etc.
   addPlayer(table, player);
-  std::cout << "Player Added" << std::endl;
 }
 
 void processBetMessage(table_t& table, int player_id, int hand_id) {
@@ -84,6 +107,7 @@ Application::~Application()
 
 void Application::setup(int argc, char** argv) {
   ServerKernel::setup(argc, argv);
+  setupConsole();
   _setupGameState(argc, argv);
 }
 
@@ -101,9 +125,10 @@ void Application::processMessage(const zmq::message_t& request) {
   }
 }
 
+
 // Broadcast state change
 void Application::pushTableState() {
-  printToConsole(table_);
+  vt_ = vt_.flip(renderTable(table_).render(80).toString());
   sendMessageToClients(setupTableStateMessage(table_));
 }
 
@@ -116,7 +141,6 @@ void Application::_setupGameState(int argc, char** argv) {
 // Setup the Game State.
 //
   table_ = createTable();
-  std::cout << "table created" << std::endl;
 
 
 //
@@ -136,7 +160,7 @@ void Application::_setupGameState(int argc, char** argv) {
 
   //@todo how to reset the timer for use in the next state.
   fsm_.on_transition( [&](state_machine<TableState, TableActions >::TTransition t) {
-      std::cout << "onTransition (" << (int)t.source() << "," << (int)t.destination() << ")" << std::endl;
+      //std::cout << "onTransition (" << (int)t.source() << "," << (int)t.destination() << ")" << std::endl;
       table_.state = fsm_.state();
       pushTableState();
       //wait(timer_, WAIT_PERIOD);

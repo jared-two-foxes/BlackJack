@@ -72,7 +72,6 @@ hand_t* findHand(table_t& t, int id) {
 }
 
 bool tableFull(table_t& t) {
-  std::cout << "players: " << t.players.size() << std::endl;
   return (t.players.size() >= MAX_PLAYERS);
 }
 
@@ -126,14 +125,4 @@ std::string toString(TableState state) {
   }
 
   return "Unknown State";
-}
-
-void printToConsole(table_t& t) {
-  std::cout << "State: " << std::to_string((int)t.state) << ", " << toString(t.state) << std::endl;
-  std::cout << "Players: " << std::to_string(t.players.size()) << std::endl;
-  for (hand_t& h : t.hands) {
-    std::cout << "printing hand" << std::endl;
-    std::cout << std::to_string(h.identifier) << " (" << std::to_string(h.player) << "): " << toString(h) << std::endl;
-  }
-  std::cout << "Dealers Hand: " << toString(t.dealer) << std::endl;
 }

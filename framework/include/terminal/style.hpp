@@ -69,17 +69,17 @@ constexpr auto computeMod(X x, Xs... xs) {
   return (r == "") ? "" : "\x1b[" + r + "m";
 }
 
-FontColour isStyle(FontColour x) { return x; }
-Colour isStyle(Colour x) { return x; }
-Font isStyle(Font x) { return x; }
+inline FontColour isStyle(FontColour x) { return x; }
+inline Colour isStyle(Colour x) { return x; }
+inline Font isStyle(Font x) { return x; }
 
-FontColour toFontColour(FontColour c) { return c; }
-Colour toColour(Colour c) { return c; }
-Font toFont(Font f) { return f; }
+inline FontColour toFontColour(FontColour c) { return c; }
+inline Colour toColour(Colour c) { return c; }
+inline Font toFont(Font f) { return f; }
 
-FontColour toFontColour(...) { return FontColour::None; }
-Colour toColour(...) { return Colour::None; }
-Font toFont(...) { return Font::None; }
+inline FontColour toFontColour(...) { return FontColour::None; }
+inline Colour toColour(...) { return Colour::None; }
+inline Font toFont(...) { return Font::None; }
 
 template <class...Xs>
 constexpr Colour getColour(Xs... xs) {
@@ -101,7 +101,7 @@ constexpr Font getFontStyle(X x, Xs... xs) {
 }
 
 
-bool has(Font x, Font y) {
+inline bool has(Font x, Font y) {
   return (((int)x) & ((int)y));
 }
 
@@ -174,7 +174,7 @@ struct Style {
 };
 
 
-Style diff(Style const& a, Style const& b = Style::None()) {
+inline Style diff(Style const& a, Style const& b = Style::None()) {
   bool keepBG = (a.bg == b.bg);
   bool keepFG = (a.fg == b.fg);
   bool keepFont = (a.font == b.font);

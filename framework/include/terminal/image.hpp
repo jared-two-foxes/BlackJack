@@ -58,7 +58,7 @@ struct Image {
   }
 };
 
-Image drawOnBackground(Image canvas, unsigned const& sx, unsigned const& sy, Image const& fg) {
+inline Image drawOnBackground(Image canvas, unsigned const& sx, unsigned const& sy, Image const& fg) {
   for (int y = 0; y < fg.height; ++y) {
   	for (int x = 0; x < fg.width; ++x) {
   	  auto& p = canvas(sx+x, sy+y);

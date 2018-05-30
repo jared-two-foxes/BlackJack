@@ -25,8 +25,8 @@ private:
     virtual void updateFrame();
 
   private:
+    void _render();
     bool _setupRequest(const std::string& action, message_t& msg);
-    void _updateActionPrompt();
 
 };
 

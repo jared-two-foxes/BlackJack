@@ -53,6 +53,8 @@ ClientKernel::run() {
     _pollForServerMessage();
     updateFrame();
   }
+
+  std::cout << "exiting." << std::endl;
 }
 
 void

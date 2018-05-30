@@ -5,6 +5,7 @@
 #include <blackjack/messagetypes.hpp>
 #include <blackjack/serialize.h>
 
+#include <framework/terminal/components/flowlayout.hpp>
 #include <framework/terminal/components/stacklayout.hpp>
 #include <framework/terminal/components/text.hpp>
 
@@ -23,22 +24,45 @@ DWORD setupConsole() {
   HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
   if (hOut == INVALID_HANDLE_VALUE)
   {
-      return GetLastError();
+    return GetLastError();
   }
 
   DWORD dwMode = 0;
   if (!GetConsoleMode(hOut, &dwMode))
   {
-      return GetLastError();
+    return GetLastError();
   }
 
   dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
   if (!SetConsoleMode(hOut, dwMode))
   {
-      return GetLastError();
+    return GetLastError();
   }
 
   return 0;
+}
+
+framework::Component
+renderActionPrompt(table_t& t) {
+  if (t.state == TableState::DEALING) {
+    return framework::Text{"Dealing"};
+  }
+  else if (t.state == TableState::REWARD) {
+    return framework::Text{"Rewarding"};
+  } 
+
+  std::string s;
+  if (t.state == TableState::WAITING_TO_START) {
+    s += "(join): ";
+  }
+  else if (t.state == TableState::WAITING_FOR_BETS) {
+    s += "(bet): ";
+  }
+  else if (t.state == TableState::WAITING_FOR_ACTIONS) {
+    s += "(bet, hit): ";
+  }
+
+  return framework::FlowLayout<>{ framework::Text{"Action "}, framework::Text{s} };
 }
 
 
@@ -54,14 +78,13 @@ ClientApplication::setup(int argc, char** argv) {
 
   future_ = std::async(std::launch::async, GetLineFromCin);
 
-  std::cout << "Blackjack Client!" << std::endl;
-  _updateActionPrompt();
+  _render();
 }
 
 void
 ClientApplication::processMessage(const zmq::message_t& msg) {
   deserialize((char*)msg.data(), &table_);
-  _updateActionPrompt();
+  _render();
 }
 
 void
@@ -70,7 +93,7 @@ ClientApplication::updateFrame() {
 
   if (future_.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
     auto line = future_.get();
-    vt_.append(line);
+    vt_.append(line + "\n");
 
     message_t msg;
     if (_setupRequest(line, msg)) {
@@ -82,13 +105,18 @@ ClientApplication::updateFrame() {
   }
 }
 
+void ClientApplication::_render() {
+  framework::StackLayout<> layout {
+    framework::Text{"BlackJack Client"},
+    renderActionPrompt(table_)
+  };
+
+  //std::cout << layout.render(80).toString() << std::endl;
+  vt_ = vt_.flip(layout.render(80).toString());
+}
+
 bool
 ClientApplication::_setupRequest(const std::string& action, message_t& msg) {
-  // // First check if we are after a local actions
-  // if (action == "printTable") {
-  //   printToConsole(table_);
-  // }
-
   if (table_.players.empty()) {
     msg.player_id = 0;
   }
@@ -122,37 +150,4 @@ ClientApplication::_setupRequest(const std::string& action, message_t& msg) {
     OkToSend = true;
   }
   return OkToSend;
-}
-
-void
-ClientApplication::_updateActionPrompt() {
-  
-
-  if (table_.state == TableState::DEALING) {
-    vt_ = vt_.flip("Dealing");
-    return; // Dont display anything.
-  }
-  else if (table_.state == TableState::REWARD) {
-    vt_ = vt_.flip("Rewarding");
-    return; // Dont display anything.
-  } 
-
-
-  std::string s("Action ");
-  if (table_.state == TableState::WAITING_TO_START) {
-    s += "(join): ";
-  }
-  else if (table_.state == TableState::WAITING_FOR_BETS) {
-    s += "(bet): ";
-  }
-  else if (table_.state == TableState::WAITING_FOR_ACTIONS) {
-    s += "(bet, hit): ";
-  }
-
-  framework::StackLayout<> sl{
-    framework::Text(s),
-    framework::Text("")  
-  };
-  
-  vt_ = vt_.flip(sl.render(80).toString());
 }

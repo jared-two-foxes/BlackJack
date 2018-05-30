@@ -5,7 +5,7 @@
 
 namespace framework {
 
-std::string reflow(unsigned const& width, std::string const& s) {
+inline std::string reflow(unsigned const& width, std::string const& s) {
   if (width == 0) { return ""; }
   if (s.size() <= width) { return s; }
 

@@ -3,13 +3,16 @@
 
 #include <framework/terminal/image.hpp>
 
+#include <string>
+#include <memory>
+
 namespace framework {
 
 struct Renderable {
   virtual Image render(unsigned const w) const = 0;
 };
 
-auto isImage(Image const& x) { return x; }
+inline auto isImage(Image const& x) { return x; }
 
 template <class R>
 auto getImage(unsigned const w, R const& r) -> decltype(isImage(r.render(w))) {
@@ -26,10 +29,10 @@ auto getImage(unsigned const w, R const& r) -> decltype(isImage(r)) {
   return r(w);
 }
 
-// template <class T>
-// auto getImage(unsigned const w, R const& r) -> decltype(Text{{},toString(r)}.render(w)) {
-//   return Text{{}, toString(r)}.render(w);
-// }
+template <class R>
+auto getImage(unsigned const w, R const& r) -> decltype(Text{{},toString(r)}.render(w)) {
+  return Text{{}, toString(r)}.render(w);
+}
 
 struct Component : Renderable {
 	

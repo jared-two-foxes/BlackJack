@@ -1,5 +1,5 @@
-#ifndef FRAMEWORK_STACKLAYOUT_HPP__
-#define FRAMEWORK_STACKLAYOUT_HPP__
+#ifndef FRAMEWORK_COMPONENTS_STACKLAYOUT_HPP__
+#define FRAMEWORK_COMPONENTS_STACKLAYOUT_HPP__
 
 #include <framework/terminal/image.hpp>
 #include <framework/terminal/components/component.hpp>
@@ -35,10 +35,13 @@ struct StackLayout {
   {}
 
   Image render(int maxWidth) const {
-  	auto const images = map(children, [maxWidth](auto const& c) {
+  	// Early out if we are empty.
+    if (children.empty()) return Image();
+
+    auto const images = map(children, [maxWidth](auto const& c) {
   	  return c.render(maxWidth);
   	});
-
+    
   	auto const width = std::max_element(
   	  images.begin(), images.end(), [](auto const& a, auto const& b){
   	  	return a.width < b.width;
