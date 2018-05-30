@@ -1,6 +1,8 @@
 
 #include "ClientApplication.hpp"
 
+#include "shared/writer.hpp"
+
 #include <blackjack/message.h>
 #include <blackjack/messagetypes.hpp>
 #include <blackjack/serialize.h>
@@ -59,7 +61,7 @@ renderActionPrompt(table_t& t) {
     s += "(bet): ";
   }
   else if (t.state == TableState::WAITING_FOR_ACTIONS) {
-    s += "(bet, hit): ";
+    s += "(hold, hit): ";
   }
 
   return framework::FlowLayout<>{ framework::Text{"Action "}, framework::Text{s} };
@@ -108,10 +110,10 @@ ClientApplication::updateFrame() {
 void ClientApplication::_render() {
   framework::StackLayout<> layout {
     framework::Text{"BlackJack Client"},
+    renderTable(table_),
     renderActionPrompt(table_)
   };
 
-  //std::cout << layout.render(80).toString() << std::endl;
   vt_ = vt_.flip(layout.render(80).toString());
 }
 

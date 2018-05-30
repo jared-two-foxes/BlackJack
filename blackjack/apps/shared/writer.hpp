@@ -21,6 +21,7 @@ inline framework::FlowLayout<> renderState(table_t& t) {
 
 inline framework::FlowLayout<> renderHand(hand_t& h) {
   return framework::FlowLayout<> {
+    framework::Text("Hand "),
     framework::Text(h.identifier),
     framework::Text(" ("),
     framework::Text(h.player),

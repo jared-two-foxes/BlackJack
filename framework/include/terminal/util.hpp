@@ -3,6 +3,8 @@
 
 #include <string>
 
+#define ESC "\x1b"
+#define CSI "\x1b["
 
 namespace framework {
 
@@ -45,30 +47,30 @@ auto map(T const& data, F const& f) {
 
 inline std::string repeat(unsigned n, std::string const& s) {
 	std::string result = "";
-	for (unsigned i = 0; i <n; ++i) {
+	for (unsigned i = 0; i < n; ++i) {
 		result += s;
 	}
-	return s;
+	return result;
 }
 
 inline std::string clearBeforeCursor() {
-	return "\x1b[0K";
+	return CSI"0K";
 }
 
 inline std::string clearAfterCursor() {
-	return "\x1b[1K";
+	return CSI"1K";
 }
 
 inline std::string clearLine() {
-	return "\x1b[2K\r";
+	return CSI"2K\r";
 }
 
 inline std::string moveUp(unsigned n = 1 ) {
-	return "\x1b[" + std::to_string(n) + "A\r";	
+	return CSI + std::to_string(n) + "A\r";
 }	
 
 inline std::string clearLines(unsigned n = 1) {
-	return "\x1b[0m" + clearBeforeCursor() + ((n) ? repeat(n, clearLine() + moveUp()) + clearLine() : std::string(""));
+	return CSI"0m" + clearBeforeCursor() + ((n) ? repeat(n, clearLine() + moveUp()) + clearLine() : std::string(""));
 }
 
 }

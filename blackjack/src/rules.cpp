@@ -13,10 +13,6 @@
 #define WAIT_PERIOD 10.0
 
 
-
-int round_;
-
-
 // Check that all the players have defined if they have
 // made a bet or not.
 bool allBetsIn(table_t& t) {
@@ -57,9 +53,6 @@ void checkHand(hand_t& h) {
 }
 
 void deal(table_t& t) {
-  std::cout << "deal" << std::endl;
-  round_++;
-
   //deal a card to each player
   for(hand_t& h : t.hands) {
     if (h.state == HandState::ACTIVE) {
@@ -76,9 +69,6 @@ void deal(table_t& t) {
 }
 
 void setupTable(table_t& table) {
-
-  round_ = 0;
-
   table.deck = shuffle(new_deck());
 
   // Setup the dealer's hand
@@ -88,6 +78,6 @@ void setupTable(table_t& table) {
 }
 
 // Check against the dealer.
-bool areHandsPopulated(table_t& t) {
-  return (t.dealer.cards.size() < round_);
+bool areHandsPopulated(table_t& t, int round) {
+  return (t.dealer.cards.size() > (round+1));
 }

@@ -5,14 +5,18 @@
 
 char* serialize(hand_t& h, char* data) {
   data = serialize(h.identifier, data);
+  data = serialize(h.player, data);
+  data = serialize(h.cards, data);
   data = serialize(h.state, data);
   data = serialize(h.action, data);
-  data = serialize(h.cards, data);
+  
   return data;
 }
 
 char* deserialize(char* buffer, hand_t* h) {
   buffer = deserialize(buffer, &(h->identifier));
+  buffer = deserialize(buffer, &(h->player));
+  buffer = deserialize(buffer, &(h->cards));
   buffer = deserialize(buffer, &(h->state));
   buffer = deserialize(buffer, &(h->action));
   
@@ -75,7 +79,7 @@ std::string toString(hand_t& h) {
     out += ","; //< @todo - handle removing this for the last card
   }
   out += "] (";
-  out += std::to_string(h.cards.size());
+  out += std::to_string(count(h));
   out += ")";
   return out;
 }

@@ -1,13 +1,13 @@
 
 #include "ServerApplication.hpp"
 
+#include "shared/writer.hpp"
+
 #include <blackjack/identifier.h>
 #include <blackjack/message.h>
 #include <blackjack/messagetypes.hpp>
 #include <blackjack/serialize.h>
 #include <blackjack/rules.hpp>
-
-#include "shared/writer.hpp"
 
 #include <functional>
 #include <iostream>
@@ -17,7 +17,9 @@
 #define BET_AMOUNT  10
 #define WAIT_PERIOD 10.0
 
-DWORD setupConsole() {
+int round_ = 0;
+
+DWORD setupConsoleOutput() {
   // Set output mode to handle virtual terminal sequences
   HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
   if (hOut == INVALID_HANDLE_VALUE)
@@ -25,16 +27,24 @@ DWORD setupConsole() {
     return GetLastError();
   }
 
-  DWORD dwMode = 0;
-  if (!GetConsoleMode(hOut, &dwMode))
+  DWORD dwOriginalMode = 0;
+  if (!GetConsoleMode(hOut, &dwOriginalMode))
   {
     return GetLastError();
   }
 
-  dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+  DWORD dwRequestedModes = ENABLE_VIRTUAL_TERMINAL_PROCESSING | DISABLE_NEWLINE_AUTO_RETURN;
+  DWORD dwMode = dwOriginalMode | dwRequestedModes;
   if (!SetConsoleMode(hOut, dwMode))
   {
-    return GetLastError();
+    // we failed to set both modes, try to step down mode gracefully.
+    dwRequestedModes = ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+    dwMode = dwOriginalMode | dwRequestedModes;
+    if (!SetConsoleMode(hOut, dwMode))
+    {
+        // Failed to set any VT mode, can't do anything here.
+        return GetLastError();
+    }
   }
 
   return 0;
@@ -107,8 +117,9 @@ Application::~Application()
 
 void Application::setup(int argc, char** argv) {
   ServerKernel::setup(argc, argv);
-  setupConsole();
+  setupConsoleOutput();
   _setupGameState(argc, argv);
+  pushTableState();
 }
 
 void Application::processMessage(const zmq::message_t& request) {
@@ -128,7 +139,12 @@ void Application::processMessage(const zmq::message_t& request) {
 
 // Broadcast state change
 void Application::pushTableState() {
-  vt_ = vt_.flip(renderTable(table_).render(80).toString());
+  framework::StackLayout<> layout{
+    framework::Text{ "BlackJack Server"},
+    renderTable(table_)
+  };
+  vt_ = vt_.flip(layout.render(80).toString());
+
   sendMessageToClients(setupTableStateMessage(table_));
 }
 
@@ -176,6 +192,7 @@ void Application::_setupGameState(int argc, char** argv) {
   fsm_.configure(TableState::WAITING_FOR_BETS)
     .permit_if(TableActions::BET, TableState::DEALING, [&](){return allBetsIn(table_);})
     .on_entry([&](state_machine<TableState, TableActions >::TTransition t){
+      round_ = 0;
       setupTable(table_);
     });
 
@@ -183,9 +200,10 @@ void Application::_setupGameState(int argc, char** argv) {
     .permit_if(TableActions::DEAL, TableState::REWARD, [&](){return isRoundOver(table_);})
     .permit_if(TableActions::DEAL, TableState::WAITING_FOR_ACTIONS, [&](){return !isRoundOver(table_);})
     .on_entry([&](state_machine<TableState, TableActions >::TTransition t){
-      if (!areHandsPopulated(table_)) {
+      while (!areHandsPopulated(table_, round_)) {
         deal(table_);
       }
+      round_++;
       fsm_.fire(TableActions::DEAL);
     });
 
@@ -195,7 +213,7 @@ void Application::_setupGameState(int argc, char** argv) {
 
   fsm_.configure(TableState::REWARD)
     .on_entry([&](state_machine<TableState, TableActions >::TTransition t){
-      std::cout << "Game Over!" << std::endl;
+      //std::cout << "Game Over!" << std::endl;
     });
 }
 

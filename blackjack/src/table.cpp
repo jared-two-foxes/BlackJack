@@ -16,6 +16,7 @@ char* serialize(table_t& t, char* data) {
   data = serialize(t.state, data);
   //data = serialize(t.deck, data); //< we dont actually want anyone to know whats contained here..?
   data = serialize(t.players, data);
+  data = serialize(t.hands, data);
   data = serialize(t.dealer, data);
   return data;
 }
@@ -27,6 +28,7 @@ char* deserialize(char* buffer, table_t* t) {
   (t->state) = (TableState)state;
   //data = deserialize(buffer, &(t->deck)); //< we dont actually want anyone to know whats contained here..?
   buffer = deserialize(buffer, &(t->players));
+  buffer = deserialize(buffer, &(t->hands));
   buffer = deserialize(buffer, &(t->dealer));
   return buffer;
 }
@@ -62,8 +64,8 @@ hand_t* addHand(table_t& t, player_t& p) {
 
 hand_t* findHand(table_t& t, int id) {
   for (hand_t& h : t.hands) {
-    return &h;
     if (h.identifier == id) {
+      return &h;
     }
   }
 
@@ -94,7 +96,7 @@ bool isRoundOver(table_t& t) {
       alive = true;
     }
   }
-  return alive;
+  return !alive;
 }
 
 std::size_t calculateSize(table_t& t) {

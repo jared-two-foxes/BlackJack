@@ -18,6 +18,7 @@ class Application : public ServerKernel
 {
 private:
   framework::VirtualTerminal vt_;
+  int round_;
   table_t table_;
   timer_t timer_;
 
