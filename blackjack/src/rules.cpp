@@ -13,6 +13,8 @@
 #define WAIT_PERIOD 10.0
 
 
+#define MAX_PLAYERS 8
+
 // Check that all the players have defined if they have
 // made a bet or not.
 bool allBetsIn(table_t& t) {
@@ -37,6 +39,21 @@ bool allActionsIn(table_t& t) {
     }
   }
   return actionsIn;
+}
+
+bool tableFull(table_t& t) {
+  return (t.players.size() >= MAX_PLAYERS);
+}
+
+bool allOut(table_t& t) {
+  bool allOut = true;
+  for (hand_t& h : t.hands) {
+    if (h.state == HandState::ACTIVE) {
+      allOut = false;
+      break;
+    }
+  }
+  return allOut;
 }
 
 // Check the hand to see if it's still active or not,
@@ -69,7 +86,16 @@ void deal(table_t& t) {
 }
 
 void setupTable(table_t& table) {
-  table.deck = shuffle(new_deck());
+  // Create a new deck. TODO:  This will fuck with any card counting
+  table.deck = shuffle(new_deck()); 
+
+  // Clear any existing hands
+  table.hands.clear();
+
+  // Clear any hands registered to any players
+  for (player_t& p : table.players) {
+    p.hands.claer();
+  }
 
   // Setup the dealer's hand
   table.dealer.cards.clear();
@@ -96,4 +122,16 @@ bool isRoundOver(table_t& t) {
 bool isBust(hand_t& h) {
   checkHand(h);
   return (h.state == HandState::BUST);
+}
+
+void rewardPlayers(table_t& t) {
+  // Iterate all the hands and reward players for those which are not bust?
+  for (auto& h : t.hands) {
+    if (h.state != HandState::BUST) {
+      player_t* p = findPlayer(t, h.player);
+      if (p) {
+        p->stash += (2*t.betSize);
+      }
+    }
+  }
 }

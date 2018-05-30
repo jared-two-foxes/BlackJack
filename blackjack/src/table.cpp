@@ -6,8 +6,6 @@
 #include <iostream>
 
 
-#define MAX_PLAYERS 8
-
 int IdentifierGenerator::s_nextIdentifier = 1;
 
 
@@ -18,6 +16,7 @@ char* serialize(table_t& t, char* data) {
   data = serialize(t.players, data);
   data = serialize(t.hands, data);
   data = serialize(t.dealer, data);
+  data = serialize(t.betSize, data);
   return data;
 }
 
@@ -30,6 +29,7 @@ char* deserialize(char* buffer, table_t* t) {
   buffer = deserialize(buffer, &(t->players));
   buffer = deserialize(buffer, &(t->hands));
   buffer = deserialize(buffer, &(t->dealer));
+  buffer = deserialize(buffer, &(t->betSize));
   return buffer;
 }
 
@@ -72,22 +72,6 @@ hand_t* findHand(table_t& t, int id) {
   // return a null hand.
   return nullptr;
 }
-
-bool tableFull(table_t& t) {
-  return (t.players.size() >= MAX_PLAYERS);
-}
-
-bool allOut(table_t& t) {
-  bool allOut = true;
-  for (hand_t& h : t.hands) {
-    if (h.state == HandState::ACTIVE) {
-      allOut = false;
-      break;
-    }
-  }
-  return allOut;
-}
-
 
 std::size_t calculateSize(table_t& t) {
   std::size_t size = sizeof(table_t);

@@ -19,6 +19,29 @@ inline framework::FlowLayout<> renderState(table_t& t) {
   };
 }
 
+inline framework::FlowLayout<> renderPlayer(player_t& p) {
+  return framework::FlowLayout<> {
+    framework::Text("Player "),
+    framework::Text(p.identifier),
+    framework::Text(": "),
+    framework::Text(p.stash)
+  };
+}
+
+inline framework::StackLayout<> renderPlayers(table_t& t) {
+  //Setup title element
+  framework::StackLayout<> ret { 
+    framework::FlowLayout<>{ framework::Text("Players: "), framework::Text(t.players.size()) }
+  };
+
+  // Iterate players and add them to the display
+  for (player_t& p : t.players) {
+    ret.children.push_back(renderPlayer(p));
+  }
+
+  return ret;
+}
+
 inline framework::FlowLayout<> renderHand(hand_t& h) {
   return framework::FlowLayout<> {
     framework::Text("Hand "),
@@ -31,7 +54,10 @@ inline framework::FlowLayout<> renderHand(hand_t& h) {
 }
 
 inline framework::StackLayout<> renderHands(table_t& t) {
-  framework::StackLayout<> ret;
+  framework::StackLayout<> ret { 
+    framework::FlowLayout<>{ framework::Text("Hands: "), framework::Text(t.hands.size()) }
+  };
+
   for (hand_t& h : t.hands) {
     ret.children.push_back(renderHand(h));
   }
@@ -41,7 +67,7 @@ inline framework::StackLayout<> renderHands(table_t& t) {
 inline framework::StackLayout<> renderTable(table_t& t) {
   return framework::StackLayout<>{
     renderState(t),
-    framework::FlowLayout<>{ framework::Text("Players: "), framework::Text(t.players.size()) },
+    renderPlayers(t),
     renderHands(t),
     framework::FlowLayout<>{ framework::Text("Dealers Hand: "), renderHand(t.dealer) }
   };

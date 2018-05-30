@@ -11,6 +11,9 @@ bool allBetsIn(table_t& t) ;
 // for each hand which they are responsible for.
 bool allActionsIn(table_t& t);
 
+bool tableFull(table_t& );
+bool allOut(table_t& );
+
 // Check the hand to see if it's still active or not,
 // hands over 21 are bust, hands on 21 have won,
 // and any other hands are still active unless holding
@@ -26,5 +29,8 @@ bool areHandsPopulated(table_t& t, int round);
 bool isRoundOver(table_t& );
 
 bool isBust(hand_t& h);
+
+void rewardPlayers(table_t& );
+
 
 #endif // BLACKJACK_RULES_HPP__

@@ -59,6 +59,7 @@ zmq::message_t setupTableStateMessage(table_t& t) {
 void processJoinMessage(table_t& table, int player_id, int hand_id) {
   player_t player;
   player.identifier = player_id;
+  player.stash = 100; //< Create a default amount of chips.
 
   //@todo - failure response if there was no room for player etc.
   //@todo - query some back end database or something to grab a better
@@ -69,10 +70,10 @@ void processJoinMessage(table_t& table, int player_id, int hand_id) {
 void processBetMessage(table_t& table, int player_id, int hand_id) {
   player_t* p = findPlayer(table, player_id);
   if (p != nullptr) {
-    //check that the player has BET_AMOUNT available.
-    //reduce players wallet by BET_AMOUNT;
+    // TODO: handle when player doesnt have enough cash to place bet.
+    p->stash -= table.betSize;
 
-    //assert that we're not attempting to add multiple hands
+    // TODO: prevent the player from "betting" to get multiple hands.
     addHand(table, *p);
   }
 }
@@ -157,6 +158,7 @@ void Application::_setupGameState(int argc, char** argv) {
 // Setup the Game State.
 //
   table_ = createTable();
+  table_.betSize = BET_AMOUNT; //< TODO: make bet size dynamically determined.
 
 
 //
@@ -212,8 +214,10 @@ void Application::_setupGameState(int argc, char** argv) {
     .permit_if(TableActions::SET, TableState::DEALING, [&](){return allActionsIn(table_);});
 
   fsm_.configure(TableState::REWARD)
+    .permit(TableActions::JOIN, TableState::WAITING_FOR_BETS)
     .on_entry([&](state_machine<TableState, TableActions >::TTransition t){
-      //std::cout << "Game Over!" << std::endl;
+      rewardPlayers(table_);
+      fsm_.fire(TableActions::JOIN);
     });
 }
 
