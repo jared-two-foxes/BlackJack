@@ -72,6 +72,24 @@ std::string valueToString(char value) {
   return "U"; //< return U for unknown?
 }
 
+std::string stateToString(HandState state) {
+  if (state == HandState::ACTIVE) {
+    return "ACTIVE";
+  }
+  else if (state == HandState::HOLDING) {
+    return "HOLDING";
+  }
+  else if (state == HandState::BUST) {
+    return "BUST";
+  }
+  else if (state == HandState::WON) {
+    return "WON";
+  }
+  
+  return "UNKNOWN"; //< return U for unknown?
+}
+
+
 std::string toString(hand_t& h) {
   std::string out("[");
   for (card_t& c : h.cards) {
@@ -80,6 +98,7 @@ std::string toString(hand_t& h) {
   }
   out += "] (";
   out += std::to_string(count(h));
-  out += ")";
+  out += ") ";
+  out += stateToString(h.state);
   return out;
 }

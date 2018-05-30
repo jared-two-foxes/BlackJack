@@ -33,7 +33,7 @@ bool allBetsIn(table_t& t) {
 bool allActionsIn(table_t& t) {
   bool actionsIn = false;
   for (hand_t& h : t.hands) {
-    if (h.state == HandState::ACTIVE && h.action != HandActions::UNKNOWN) {
+    if (h.state == HandState::HOLDING || (h.state == HandState::ACTIVE && h.action != HandActions::UNKNOWN)) {
       actionsIn = true;
       break;
     }
@@ -72,17 +72,31 @@ void checkHand(hand_t& h) {
 void deal(table_t& t) {
   //deal a card to each player
   for(hand_t& h : t.hands) {
-    if (h.state == HandState::ACTIVE && h.action != HandActions::HOLD) {
-      card_t card = draw(t.deck);
-      h.cards.push_back(card);
+    if (h.state == HandState::ACTIVE) {
+      if (h.action == HandActions::HOLD) {
+        h.state = HandState::HOLDING;
+      }
+      else { //h.action == HandActions::HIT
+        card_t card = draw(t.deck);
+        h.cards.push_back(card);
+        checkHand(h);
+      }
       h.action = HandActions::UNKNOWN; //< reset the action.
-      checkHand(h);
     }
   }
 
-  //deal a card to the dealers hand.
-  t.dealer.cards.push_back(draw(t.deck));
-  checkHand(t.dealer);
+  // Deal a card to the dealers hand if the value of the dealers hand is
+  // less than 17
+  if (t.dealer.state == HandState::ACTIVE) {
+    t.dealer.cards.push_back(draw(t.deck));
+    checkHand(t.dealer);
+    if (t.dealer.state == HandState::BUST) {
+      //TODO: All other hands win.
+    }
+    else if (count(t.dealer) > 17) {
+      t.dealer.state = HandState::HOLDING; 
+    }
+  }
 }
 
 void setupTable(table_t& table) {
@@ -94,7 +108,7 @@ void setupTable(table_t& table) {
 
   // Clear any hands registered to any players
   for (player_t& p : table.players) {
-    p.hands.claer();
+    p.hands.clear();
   }
 
   // Setup the dealer's hand
@@ -105,18 +119,38 @@ void setupTable(table_t& table) {
 
 // Check against the dealer.
 bool areHandsPopulated(table_t& t, int round) {
+  // Find an active hand.
+  for (hand_t& h : t.hands) {
+    if (h.state == HandState::ACTIVE) {
+      return (h.cards.size() > (round+1));    
+    }
+  }
+  // else I guess try the dealers hand but this is only going to work while the dealer isn't
+  // holding.
   return (t.dealer.cards.size() > (round+1));
 }
 
 bool isRoundOver(table_t& t) {
-  bool alive = false;
+  bool alive = false, holding = true;
   for (hand_t& h : t.hands) {
-    if (h.state == HandState::ACTIVE ||
-      h.state == HandState::HOLDING) {
+    if (h.state == HandState::ACTIVE) {
       alive = true;
     }
+    if (h.state != HandState::HOLDING) {
+      holding = false;
+    }
   }
-  return !alive || isBust(t.dealer);
+  
+  if (t.dealer.state != HandState::HOLDING) {
+    holding = false;
+  }
+
+  return hasWon(t.dealer) || isBust(t.dealer) || !alive || holding;
+}
+
+bool hasWon(hand_t& h) {
+  checkHand(h);
+  return (h.state == HandState::WON);
 }
 
 bool isBust(hand_t& h) {
@@ -127,11 +161,13 @@ bool isBust(hand_t& h) {
 void rewardPlayers(table_t& t) {
   // Iterate all the hands and reward players for those which are not bust?
   for (auto& h : t.hands) {
-    if (h.state != HandState::BUST) {
-      player_t* p = findPlayer(t, h.player);
-      if (p) {
-        p->stash += (2*t.betSize);
-      }
+    player_t* p = findPlayer(t, h.player);
+    //assert(p);
+    if (hasWon(t.dealer) || h.state == HandState::BUST) {
+      p->stash -= t.betSize;
+    }
+    else if (t.dealer.state == HandState::BUST || (count(h) > count(t.dealer))) {
+      p->stash += t.betSize;
     }
   }
 }

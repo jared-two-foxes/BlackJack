@@ -28,7 +28,9 @@ bool areHandsPopulated(table_t& t, int round);
 
 bool isRoundOver(table_t& );
 
-bool isBust(hand_t& h);
+bool hasWon(hand_t& );
+
+bool isBust(hand_t& );
 
 void rewardPlayers(table_t& );
 

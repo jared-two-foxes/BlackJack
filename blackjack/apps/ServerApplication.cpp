@@ -71,8 +71,7 @@ void processBetMessage(table_t& table, int player_id, int hand_id) {
   player_t* p = findPlayer(table, player_id);
   if (p != nullptr) {
     // TODO: handle when player doesnt have enough cash to place bet.
-    p->stash -= table.betSize;
-
+    
     // TODO: prevent the player from "betting" to get multiple hands.
     addHand(table, *p);
   }
