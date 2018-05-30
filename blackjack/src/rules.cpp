@@ -29,10 +29,10 @@ bool allBetsIn(table_t& t) {
 // Check that all the players have defined an action
 // for each hand which they are responsible for.
 bool allActionsIn(table_t& t) {
-  bool actionsIn = true;
+  bool actionsIn = false;
   for (hand_t& h : t.hands) {
     if (h.state == HandState::ACTIVE && h.action != HandActions::UNKNOWN) {
-      actionsIn = false;
+      actionsIn = true;
       break;
     }
   }

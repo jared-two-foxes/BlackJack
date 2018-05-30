@@ -1,6 +1,9 @@
 
 #include <blackjack/deck.h>
+
+#include <algorithm>
 #include <iostream>
+#include <random>
 
 deck_t new_deck() {
   deck_t deck;
@@ -19,6 +22,9 @@ deck_t new_deck() {
 }
 
 deck_t shuffle(deck_t& d) {
+  std::random_device rd;
+  std::mt19937 g(rd());
+  std::shuffle(d.cards.begin(), d.cards.end(), g);
   return d;
 }
 

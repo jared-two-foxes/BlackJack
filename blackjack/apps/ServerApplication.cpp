@@ -163,9 +163,9 @@ void Application::_setupGameState(int argc, char** argv) {
 // Setup the callback functors
 //
   callbacks_[MessageTypes::JOIN]  = &processJoinMessage;
-  callbacks_[MessageTypes::HOLD]  = &processHitMessage;
+  callbacks_[MessageTypes::HOLD]  = &processHoldMessage;
   callbacks_[MessageTypes::BET]   = &processBetMessage;
-  callbacks_[MessageTypes::HIT]   = &processHoldMessage;
+  callbacks_[MessageTypes::HIT]   = &processHitMessage;
   //callbacks_[MessageTypes::SPLIT] = &processSplitMessage;
 
 
