@@ -88,16 +88,6 @@ bool allOut(table_t& t) {
   return allOut;
 }
 
-bool isRoundOver(table_t& t) {
-  bool alive = false;
-  for (hand_t& h : t.hands) {
-    if (h.state == HandState::ACTIVE ||
-      h.state == HandState::HOLDING) {
-      alive = true;
-    }
-  }
-  return !alive;
-}
 
 std::size_t calculateSize(table_t& t) {
   std::size_t size = sizeof(table_t);

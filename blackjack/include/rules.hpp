@@ -23,4 +23,8 @@ void setupTable(table_t& table);
 // Check against the dealer.
 bool areHandsPopulated(table_t& t, int round);
 
+bool isRoundOver(table_t& );
+
+bool isBust(hand_t& h);
+
 #endif // BLACKJACK_RULES_HPP__

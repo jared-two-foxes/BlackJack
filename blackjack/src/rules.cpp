@@ -55,7 +55,7 @@ void checkHand(hand_t& h) {
 void deal(table_t& t) {
   //deal a card to each player
   for(hand_t& h : t.hands) {
-    if (h.state == HandState::ACTIVE) {
+    if (h.state == HandState::ACTIVE && h.action != HandActions::HOLD) {
       card_t card = draw(t.deck);
       h.cards.push_back(card);
       h.action = HandActions::UNKNOWN; //< reset the action.
@@ -80,4 +80,20 @@ void setupTable(table_t& table) {
 // Check against the dealer.
 bool areHandsPopulated(table_t& t, int round) {
   return (t.dealer.cards.size() > (round+1));
+}
+
+bool isRoundOver(table_t& t) {
+  bool alive = false;
+  for (hand_t& h : t.hands) {
+    if (h.state == HandState::ACTIVE ||
+      h.state == HandState::HOLDING) {
+      alive = true;
+    }
+  }
+  return !alive || isBust(t.dealer);
+}
+
+bool isBust(hand_t& h) {
+  checkHand(h);
+  return (h.state == HandState::BUST);
 }
