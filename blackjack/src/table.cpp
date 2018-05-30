@@ -16,6 +16,7 @@ char* serialize(table_t& t, char* data) {
   data = serialize(t.state, data);
   //data = serialize(t.deck, data); //< we dont actually want anyone to know whats contained here..?
   data = serialize(t.players, data);
+  data = serialize(t.hands, data);
   data = serialize(t.dealer, data);
   return data;
 }
@@ -27,6 +28,7 @@ char* deserialize(char* buffer, table_t* t) {
   (t->state) = (TableState)state;
   //data = deserialize(buffer, &(t->deck)); //< we dont actually want anyone to know whats contained here..?
   buffer = deserialize(buffer, &(t->players));
+  buffer = deserialize(buffer, &(t->hands));
   buffer = deserialize(buffer, &(t->dealer));
   return buffer;
 }
@@ -62,8 +64,8 @@ hand_t* addHand(table_t& t, player_t& p) {
 
 hand_t* findHand(table_t& t, int id) {
   for (hand_t& h : t.hands) {
-    return &h;
     if (h.identifier == id) {
+      return &h;
     }
   }
 
@@ -72,7 +74,6 @@ hand_t* findHand(table_t& t, int id) {
 }
 
 bool tableFull(table_t& t) {
-  std::cout << "players: " << t.players.size() << std::endl;
   return (t.players.size() >= MAX_PLAYERS);
 }
 
@@ -87,16 +88,6 @@ bool allOut(table_t& t) {
   return allOut;
 }
 
-bool isRoundOver(table_t& t) {
-  bool alive = false;
-  for (hand_t& h : t.hands) {
-    if (h.state == HandState::ACTIVE ||
-      h.state == HandState::HOLDING) {
-      alive = true;
-    }
-  }
-  return alive;
-}
 
 std::size_t calculateSize(table_t& t) {
   std::size_t size = sizeof(table_t);
@@ -126,14 +117,4 @@ std::string toString(TableState state) {
   }
 
   return "Unknown State";
-}
-
-void printToConsole(table_t& t) {
-  std::cout << "State: " << std::to_string((int)t.state) << ", " << toString(t.state) << std::endl;
-  std::cout << "Players: " << std::to_string(t.players.size()) << std::endl;
-  for (hand_t& h : t.hands) {
-    std::cout << "printing hand" << std::endl;
-    std::cout << std::to_string(h.identifier) << " (" << std::to_string(h.player) << "): " << toString(h) << std::endl;
-  }
-  std::cout << "Dealers Hand: " << toString(t.dealer) << std::endl;
 }

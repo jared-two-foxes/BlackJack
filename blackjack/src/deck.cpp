@@ -1,10 +1,11 @@
 
 #include <blackjack/deck.h>
+
+#include <algorithm>
 #include <iostream>
+#include <random>
 
 deck_t new_deck() {
-  std::cout << "new deck" << std::endl;
-
   deck_t deck;
 
   // fill the deck with all the cards.
@@ -21,11 +22,13 @@ deck_t new_deck() {
 }
 
 deck_t shuffle(deck_t& d) {
+  std::random_device rd;
+  std::mt19937 g(rd());
+  std::shuffle(d.cards.begin(), d.cards.end(), g);
   return d;
 }
 
 card_t draw(deck_t& d) {
-  std::cout << "draw" << std::endl;
   card_t& c = d.cards.back();
   d.cards.pop_back();
   return c;

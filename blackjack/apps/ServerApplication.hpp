@@ -1,7 +1,8 @@
 #ifndef BLACKJACK_SERVER_APPLICATION_HPP__
 #define BLACKJACK_SERVER_APPLICATION_HPP__
 
-#include <framework/serverkernel.hpp>
+#include <framework/kernel/serverkernel.hpp>
+#include <framework/terminal/terminal.hpp>
 
 #include <blackjack/messagetypes.hpp>
 #include <blackjack/table.h>
@@ -16,6 +17,8 @@
 class Application : public ServerKernel
 {
 private:
+  framework::VirtualTerminal vt_;
+  int round_;
   table_t table_;
   timer_t timer_;
 

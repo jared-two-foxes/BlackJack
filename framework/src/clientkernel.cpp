@@ -1,5 +1,5 @@
 
-#include <framework/clientkernel.hpp>
+#include <framework/kernel/clientkernel.hpp>
 
 #include <memory>
 #include <iostream>
@@ -53,6 +53,8 @@ ClientKernel::run() {
     _pollForServerMessage();
     updateFrame();
   }
+
+  std::cout << "exiting." << std::endl;
 }
 
 void

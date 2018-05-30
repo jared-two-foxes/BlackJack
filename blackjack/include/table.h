@@ -49,8 +49,8 @@ bool allOut(table_t& );
 bool isRoundOver(table_t& );
 
 std::size_t calculateSize(table_t& );
-void printToConsole(table_t& );
 
+std::string toString(TableState state);
 
 
 #endif // BLACKJACK_TABLE_H__

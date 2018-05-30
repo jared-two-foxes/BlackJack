@@ -13,10 +13,6 @@
 #define WAIT_PERIOD 10.0
 
 
-
-int round_;
-
-
 // Check that all the players have defined if they have
 // made a bet or not.
 bool allBetsIn(table_t& t) {
@@ -33,10 +29,10 @@ bool allBetsIn(table_t& t) {
 // Check that all the players have defined an action
 // for each hand which they are responsible for.
 bool allActionsIn(table_t& t) {
-  bool actionsIn = true;
+  bool actionsIn = false;
   for (hand_t& h : t.hands) {
     if (h.state == HandState::ACTIVE && h.action != HandActions::UNKNOWN) {
-      actionsIn = false;
+      actionsIn = true;
       break;
     }
   }
@@ -57,12 +53,9 @@ void checkHand(hand_t& h) {
 }
 
 void deal(table_t& t) {
-  std::cout << "deal" << std::endl;
-  round_++;
-
   //deal a card to each player
   for(hand_t& h : t.hands) {
-    if (h.state == HandState::ACTIVE) {
+    if (h.state == HandState::ACTIVE && h.action != HandActions::HOLD) {
       card_t card = draw(t.deck);
       h.cards.push_back(card);
       h.action = HandActions::UNKNOWN; //< reset the action.
@@ -76,9 +69,6 @@ void deal(table_t& t) {
 }
 
 void setupTable(table_t& table) {
-
-  round_ = 0;
-
   table.deck = shuffle(new_deck());
 
   // Setup the dealer's hand
@@ -88,6 +78,22 @@ void setupTable(table_t& table) {
 }
 
 // Check against the dealer.
-bool areHandsPopulated(table_t& t) {
-  return (t.dealer.cards.size() < round_);
+bool areHandsPopulated(table_t& t, int round) {
+  return (t.dealer.cards.size() > (round+1));
+}
+
+bool isRoundOver(table_t& t) {
+  bool alive = false;
+  for (hand_t& h : t.hands) {
+    if (h.state == HandState::ACTIVE ||
+      h.state == HandState::HOLDING) {
+      alive = true;
+    }
+  }
+  return !alive || isBust(t.dealer);
+}
+
+bool isBust(hand_t& h) {
+  checkHand(h);
+  return (h.state == HandState::BUST);
 }

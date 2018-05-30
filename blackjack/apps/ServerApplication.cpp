@@ -1,6 +1,8 @@
 
 #include "ServerApplication.hpp"
 
+#include "shared/writer.hpp"
+
 #include <blackjack/identifier.h>
 #include <blackjack/message.h>
 #include <blackjack/messagetypes.hpp>
@@ -15,6 +17,38 @@
 #define BET_AMOUNT  10
 #define WAIT_PERIOD 10.0
 
+int round_ = 0;
+
+DWORD setupConsoleOutput() {
+  // Set output mode to handle virtual terminal sequences
+  HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+  if (hOut == INVALID_HANDLE_VALUE)
+  {
+    return GetLastError();
+  }
+
+  DWORD dwOriginalMode = 0;
+  if (!GetConsoleMode(hOut, &dwOriginalMode))
+  {
+    return GetLastError();
+  }
+
+  DWORD dwRequestedModes = ENABLE_VIRTUAL_TERMINAL_PROCESSING | DISABLE_NEWLINE_AUTO_RETURN;
+  DWORD dwMode = dwOriginalMode | dwRequestedModes;
+  if (!SetConsoleMode(hOut, dwMode))
+  {
+    // we failed to set both modes, try to step down mode gracefully.
+    dwRequestedModes = ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+    dwMode = dwOriginalMode | dwRequestedModes;
+    if (!SetConsoleMode(hOut, dwMode))
+    {
+        // Failed to set any VT mode, can't do anything here.
+        return GetLastError();
+    }
+  }
+
+  return 0;
+}
 
 zmq::message_t setupTableStateMessage(table_t& t) {
   zmq::message_t msg(calculateSize(t));
@@ -30,7 +64,6 @@ void processJoinMessage(table_t& table, int player_id, int hand_id) {
   //@todo - query some back end database or something to grab a better
   //        representation of the player, ie past winnings etc.
   addPlayer(table, player);
-  std::cout << "Player Added" << std::endl;
 }
 
 void processBetMessage(table_t& table, int player_id, int hand_id) {
@@ -84,7 +117,9 @@ Application::~Application()
 
 void Application::setup(int argc, char** argv) {
   ServerKernel::setup(argc, argv);
+  setupConsoleOutput();
   _setupGameState(argc, argv);
+  pushTableState();
 }
 
 void Application::processMessage(const zmq::message_t& request) {
@@ -101,9 +136,15 @@ void Application::processMessage(const zmq::message_t& request) {
   }
 }
 
+
 // Broadcast state change
 void Application::pushTableState() {
-  printToConsole(table_);
+  framework::StackLayout<> layout{
+    framework::Text{ "BlackJack Server"},
+    renderTable(table_)
+  };
+  vt_ = vt_.flip(layout.render(80).toString());
+
   sendMessageToClients(setupTableStateMessage(table_));
 }
 
@@ -116,16 +157,15 @@ void Application::_setupGameState(int argc, char** argv) {
 // Setup the Game State.
 //
   table_ = createTable();
-  std::cout << "table created" << std::endl;
 
 
 //
 // Setup the callback functors
 //
   callbacks_[MessageTypes::JOIN]  = &processJoinMessage;
-  callbacks_[MessageTypes::HOLD]  = &processHitMessage;
+  callbacks_[MessageTypes::HOLD]  = &processHoldMessage;
   callbacks_[MessageTypes::BET]   = &processBetMessage;
-  callbacks_[MessageTypes::HIT]   = &processHoldMessage;
+  callbacks_[MessageTypes::HIT]   = &processHitMessage;
   //callbacks_[MessageTypes::SPLIT] = &processSplitMessage;
 
 
@@ -136,7 +176,7 @@ void Application::_setupGameState(int argc, char** argv) {
 
   //@todo how to reset the timer for use in the next state.
   fsm_.on_transition( [&](state_machine<TableState, TableActions >::TTransition t) {
-      std::cout << "onTransition (" << (int)t.source() << "," << (int)t.destination() << ")" << std::endl;
+      //std::cout << "onTransition (" << (int)t.source() << "," << (int)t.destination() << ")" << std::endl;
       table_.state = fsm_.state();
       pushTableState();
       //wait(timer_, WAIT_PERIOD);
@@ -152,6 +192,7 @@ void Application::_setupGameState(int argc, char** argv) {
   fsm_.configure(TableState::WAITING_FOR_BETS)
     .permit_if(TableActions::BET, TableState::DEALING, [&](){return allBetsIn(table_);})
     .on_entry([&](state_machine<TableState, TableActions >::TTransition t){
+      round_ = 0;
       setupTable(table_);
     });
 
@@ -159,9 +200,10 @@ void Application::_setupGameState(int argc, char** argv) {
     .permit_if(TableActions::DEAL, TableState::REWARD, [&](){return isRoundOver(table_);})
     .permit_if(TableActions::DEAL, TableState::WAITING_FOR_ACTIONS, [&](){return !isRoundOver(table_);})
     .on_entry([&](state_machine<TableState, TableActions >::TTransition t){
-      if (!areHandsPopulated(table_)) {
+      while (!areHandsPopulated(table_, round_)) {
         deal(table_);
       }
+      round_++;
       fsm_.fire(TableActions::DEAL);
     });
 
@@ -171,7 +213,7 @@ void Application::_setupGameState(int argc, char** argv) {
 
   fsm_.configure(TableState::REWARD)
     .on_entry([&](state_machine<TableState, TableActions >::TTransition t){
-      std::cout << "Game Over!" << std::endl;
+      //std::cout << "Game Over!" << std::endl;
     });
 }
 

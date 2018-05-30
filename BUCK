@@ -20,7 +20,7 @@ cxx_library(
     '/D_WIN32',
     '/D_WINDOWS',
   ],
-  deps = ['//libzmq:libzmq', '//cppzmq:cppzmq'],
+  deps = ['//cppzmq:cppzmq', '//libzmq:libzmq'],
   visibility = ['PUBLIC']
 )
 
@@ -46,16 +46,21 @@ cxx_library(
     '/D_WIN32',
     '/D_WINDOWS',
   ],
-  deps = ['//cpp-stateless:cpp-stateless'],
+  deps = [],
   visibility = ['PUBLIC']
 )
 
 cxx_binary(
   name = 'server',
-  srcs = [
-    'blackjack/apps/server.cpp',
+  srcs = glob([
+    'blackjack/apps/shared/**/*.cpp',
     'blackjack/apps/ServerApplication.cpp',
-  ],
+    'blackjack/apps/server.cpp',
+  ]),
+  headers = subdir_glob([ # private include files
+    ('blackjack/apps', 'ServerApplication.hpp'),
+    ('blackjack/apps/shared', '**/*.hpp'),
+  ]),
   compiler_flags = [
     '/EHsc',
   ],
@@ -78,16 +83,21 @@ cxx_binary(
     'odbc32.lib',
     'odbccp32.lib',
   ],
-  deps = [':blackjack', ':framework'],
+  deps = [':framework',':blackjack','//cpp-stateless:cpp-stateless'],
   visibility = ['PUBLIC']
 )
 
 cxx_binary(
   name = 'client',
-  srcs = [
-    'blackjack/apps/client.cpp',
+  srcs = glob([
+    'blackjack/apps/shared/**/*.cpp',
     'blackjack/apps/ClientApplication.cpp',
-  ],
+    'blackjack/apps/client.cpp',
+  ]),
+  headers = subdir_glob([ # private include files
+    ('blackjack/apps', 'ServerApplication.hpp'),
+    ('blackjack/apps/shared', '**/*.hpp'),
+  ]),
   compiler_flags = [
     '/EHsc',
   ],

@@ -1,8 +1,8 @@
 #ifndef BLACKJACK_CLIENTAPPLICATION_HPP__
 #define BLACKJACK_CLIENTAPPLICATION_HPP__
 
-#include <framework/clientkernel.hpp>
-#include <framework/terminal.hpp>
+#include <framework/kernel/clientkernel.hpp>
+#include <framework/terminal/terminal.hpp>
 
 #include <blackjack/message.h>
 #include <blackjack/table.h>
@@ -25,8 +25,8 @@ private:
     virtual void updateFrame();
 
   private:
+    void _render();
     bool _setupRequest(const std::string& action, message_t& msg);
-    void _updateActionPrompt();
 
 };
 
