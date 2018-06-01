@@ -3,6 +3,7 @@ cxx_library(
   header_namespace = 'framework',
   srcs = glob([
     'framework/src/**/*.cpp',
+    'framework/src/**/*.c',
   ]),
   headers = subdir_glob([ # private include files
     ('framework/detail', '**/*.h'), # they are only accessible inside the library
