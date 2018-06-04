@@ -1,11 +1,18 @@
 #ifndef BLACKJACK_MESSAGE_H__
 #define BLACKJACK_MESSAGE_H__
 
-struct message_t
+#include <blackjack/messagetypes.hpp>
+
+struct message_body_t 
 {
   int player_id;
   int hand_id;
-  int cmd;
+};
+
+struct message_t
+{
+  MessageTypes   cmd;
+  message_body_t data;
 };
 
 #endif // BLACKJACK_MESSAGE_H__

@@ -1,7 +1,7 @@
 #ifndef BLACKJACK_PLAYER_H__
 #define BLACKJACK_PLAYER_H__
 
-#include <blackjack/hand.h>
+#include <blackjack/hand.hpp>
 
 #include <vector>
 //#include <boost/uuid.hpp>

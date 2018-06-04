@@ -1,5 +1,5 @@
 
-#include <framework/kernel/serverkernel.hpp>
+#include <framework/online/server.hpp>
 
 #include <iostream>
 
@@ -7,12 +7,13 @@
 const std::string publisherEndPoint = "tcp://*:5556";
 const std::string listenerEndPoint = "tcp://*:5555";
 
+using namespace framework;
 
-ServerKernel::~ServerKernel()
+Server::~Server()
 {}
 
 void 
-ServerKernel::setup(int argc, char** argv) {
+Server::setup(int argc, char** argv) {
   context_   = std::make_unique<zmq::context_t >( 1 );
   publisher_ = std::make_unique<zmq::socket_t >( *context_, ZMQ_PUB );
   listener_  = std::make_unique<zmq::socket_t >( *context_, ZMQ_REP );
@@ -29,17 +30,17 @@ ServerKernel::setup(int argc, char** argv) {
 }
 
 void 
-ServerKernel::processMessage(const zmq::message_t& msg) {
+Server::processMessage(const zmq::message_t& msg) {
   // do nothing.
 }
 
 void 
-ServerKernel::updateFrame() {
+Server::updateFrame() {
   // do nothing.
 }
 
 int 
-ServerKernel::run() {
+Server::run() {
   while (1) {
     _pollForClientMessage();
     updateFrame();
@@ -49,12 +50,12 @@ ServerKernel::run() {
 }
 
 void 
-ServerKernel::sendMessageToClients(zmq::message_t msg) {
+Server::sendMessageToClients(zmq::message_t msg) {
   publisher_->send(msg, ZMQ_NOBLOCK);
 }
 
 void 
-ServerKernel::_pollForClientMessage() {
+Server::_pollForClientMessage() {
   zmq::message_t request;
   if (listener_->recv(&request, ZMQ_NOBLOCK)) {
     processMessage(request);

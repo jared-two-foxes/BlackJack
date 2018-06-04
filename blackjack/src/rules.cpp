@@ -1,9 +1,9 @@
 
 #include <blackjack/rules.hpp>
 
-#include <blackjack/identifier.h>
-#include <blackjack/message.h>
-#include <blackjack/serialize.h>
+#include <blackjack/identifier.hpp>
+#include <blackjack/message.hpp>
+#include <blackjack/serialize.hpp>
 
 #include <functional>
 #include <iostream>

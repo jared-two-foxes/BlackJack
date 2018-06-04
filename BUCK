@@ -54,13 +54,12 @@ cxx_library(
 cxx_binary(
   name = 'server',
   srcs = glob([
+    'blackjack/apps/server/**/*.cpp',
     'blackjack/apps/shared/**/*.cpp',
-    'blackjack/apps/ServerApplication.cpp',
-    'blackjack/apps/server.cpp',
   ]),
   headers = subdir_glob([ # private include files
-    ('blackjack/apps', 'ServerApplication.hpp'),
-    ('blackjack/apps/shared', '**/*.hpp'),
+    ('blackjack/apps/server', '**/*.hpp'),
+    ('blackjack/apps',        'shared/**/*.hpp'),
   ]),
   compiler_flags = [
     '/EHsc',
@@ -91,13 +90,12 @@ cxx_binary(
 cxx_binary(
   name = 'client',
   srcs = glob([
+    'blackjack/apps/client/**/*.cpp',
     'blackjack/apps/shared/**/*.cpp',
-    'blackjack/apps/ClientApplication.cpp',
-    'blackjack/apps/client.cpp',
   ]),
   headers = subdir_glob([ # private include files
-    ('blackjack/apps', 'ServerApplication.hpp'),
-    ('blackjack/apps/shared', '**/*.hpp'),
+    ('blackjack/apps/client', '**/*.hpp'),
+    ('blackjack/apps',        'shared/**/*.hpp'),
   ]),
   compiler_flags = [
     '/EHsc',

@@ -1,8 +1,8 @@
 #ifndef BLACKJACK_TABLE_H__
 #define BLACKJACK_TABLE_H__
 
-#include <blackjack/deck.h>
-#include <blackjack/player.h>
+#include <blackjack/deck.hpp>
+#include <blackjack/player.hpp>
 
 #include <vector>
 

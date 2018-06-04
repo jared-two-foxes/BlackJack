@@ -1,6 +1,6 @@
 
-#include <blackjack/hand.h>
-#include <blackjack/serialize.h>
+#include <blackjack/hand.hpp>
+#include <blackjack/serialize.hpp>
 
 
 char* serialize(hand_t& h, char* data) {

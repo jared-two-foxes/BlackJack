@@ -1,7 +1,7 @@
 #ifndef BLACKJACK_DECK_H__
 #define BLACKJACK_DECK_H__
 
-#include <blackjack/card.h>
+#include <blackjack/card.hpp>
 
 #include <vector>
 

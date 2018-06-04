@@ -1,7 +1,7 @@
 #ifndef BLACKJACK_CLIENTAPPLICATION_HPP__
 #define BLACKJACK_CLIENTAPPLICATION_HPP__
 
-#include <framework/kernel/clientkernel.hpp>
+#include <framework/kernel/client.hpp>
 #include <framework/terminal/terminal.hpp>
 
 #include <blackjack/message.h>

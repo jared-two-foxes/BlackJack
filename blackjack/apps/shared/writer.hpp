@@ -1,8 +1,8 @@
 #ifndef BLACKJACK_WRITER_HPP__
 #define BLACKJACK_WRITER_HPP__
 
-#include <blackjack/table.h>
-#include <blackjack/hand.h>
+#include <blackjack/table.hpp>
+#include <blackjack/hand.hpp>
 
 #include <framework/terminal/components/stacklayout.hpp>
 #include <framework/terminal/components/flowlayout.hpp>

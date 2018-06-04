@@ -3,10 +3,9 @@
 
 #include "shared/writer.hpp"
 
-#include <blackjack/identifier.h>
-#include <blackjack/message.h>
-#include <blackjack/messagetypes.hpp>
-#include <blackjack/serialize.h>
+#include <blackjack/identifier.hpp>
+#include <blackjack/message.hpp>
+#include <blackjack/serialize.hpp>
 #include <blackjack/rules.hpp>
 
 #include <functional>
@@ -116,7 +115,7 @@ Application::~Application()
 {}
 
 void Application::setup(int argc, char** argv) {
-  ServerKernel::setup(argc, argv);
+  server_.setup(argc, argv);
   setupConsoleOutput();
   _setupGameState(argc, argv);
   pushTableState();
@@ -128,8 +127,9 @@ void Application::processMessage(const zmq::message_t& request) {
   MessageTypes mt = (MessageTypes)msg.cmd;
 
   try {   
-    callbacks_[mt](table_, msg.player_id, msg.hand_id);
-    fsm_.fire(_translateMessage((MessageTypes)msg.cmd));
+    kernel_.process(mt, msg.data);
+    //callbacks_[mt](table_, msg.player_id, msg.hand_id);
+    //fsm_.fire(_translateMessage(mt);
   }
   catch (std::exception& e) {
     std::cout << "Exception thrown during 'fire':\n" << e.what() << std::endl;
@@ -145,7 +145,11 @@ void Application::pushTableState() {
   };
   vt_ = vt_.flip(layout.render(80).toString());
 
-  sendMessageToClients(setupTableStateMessage(table_));
+  server_.sendMessageToClients(setupTableStateMessage(table_));
+}
+
+int Application::run() {
+  return server_.run();
 }
 
 void Application::_setupGameState(int argc, char** argv) {
@@ -163,11 +167,11 @@ void Application::_setupGameState(int argc, char** argv) {
 //
 // Setup the callback functors
 //
-  callbacks_[MessageTypes::JOIN]  = &processJoinMessage;
-  callbacks_[MessageTypes::HOLD]  = &processHoldMessage;
-  callbacks_[MessageTypes::BET]   = &processBetMessage;
-  callbacks_[MessageTypes::HIT]   = &processHitMessage;
-  //callbacks_[MessageTypes::SPLIT] = &processSplitMessage;
+  //kernel_.add(MessageTypes::JOIN, &processJoinMessage);
+  //kernel_.add(MessageTypes::HOLD, &processHoldMessage);
+  //kernel_.add(MessageTypes::BET, &processBetMessage);
+  //kernel_.add(MessageTypes::HIT, &processHitMessage);
+  //kernel_.add(MessageTypes::SPLIT] = &processSplitMessage;
 
 
 //

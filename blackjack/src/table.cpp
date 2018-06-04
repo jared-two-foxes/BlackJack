@@ -1,7 +1,7 @@
 
-#include <blackjack/table.h>
-#include <blackjack/identifier.h>
-#include <blackjack/serialize.h>
+#include <blackjack/table.hpp>
+#include <blackjack/identifier.hpp>
+#include <blackjack/serialize.hpp>
 
 #include <iostream>
 

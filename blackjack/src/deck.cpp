@@ -1,5 +1,5 @@
 
-#include <blackjack/deck.h>
+#include <blackjack/deck.hpp>
 
 #include <algorithm>
 #include <iostream>

@@ -1,7 +1,7 @@
 #ifndef BLACKJACK_RULES_HPP__
 #define BLACKJACK_RULES_HPP__
 
-#include <blackjack/table.h>
+#include <blackjack/table.hpp>
 
 // Check that all the players have defined if they have
 // made a bet or not.

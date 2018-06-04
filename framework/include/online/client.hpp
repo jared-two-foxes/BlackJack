@@ -4,7 +4,9 @@
 #include <zmq.hpp>
 #include <memory>
 
-class ClientKernel
+namespace framework {
+
+class Client
 {
 private:
   std::unique_ptr<zmq::context_t > context_;
@@ -12,7 +14,7 @@ private:
   std::unique_ptr<zmq::socket_t >  server_;
 
 public:
-  virtual ~ClientKernel();
+  virtual ~Client();
 
   virtual void setup(int argc, char** argv);
   virtual void processMessage(const zmq::message_t& msg);
@@ -29,7 +31,7 @@ private:
 };
 
 template <typename T> void 
-ClientKernel::postMessageToServer(T& data) {
+Client::postMessageToServer(T& data) {
   // Now send the message to the server.
   zmq::message_t request( sizeof(T) );
   memcpy( (char*)request.data(), &data, sizeof(T) );
@@ -38,6 +40,8 @@ ClientKernel::postMessageToServer(T& data) {
   // Then wait for reply?  This doesnt feel super necessary but oh well.
   zmq::message_t reply;
   server_->recv( &reply ); //< blocking
+}
+
 }
 
 #endif // FRAMEWORK_CLIENTKERNEL_H__

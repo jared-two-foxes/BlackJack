@@ -1,10 +1,12 @@
-#ifndef FRAMEWORK_SERVERKERNEL_H__
-#define FRAMEWORK_SERVERKERNEL_H__
+#ifndef FRAMEWORK_SERVER_H__
+#define FRAMEWORK_SERVER_H__
 
 #include <zmq.hpp>
 #include <memory>
 
-class ServerKernel
+namespace framework {
+
+class Server
 {
 private:
   std::unique_ptr<zmq::context_t > context_;
@@ -12,7 +14,7 @@ private:
   std::unique_ptr<zmq::socket_t >  listener_;
 
   public:
-    virtual ~ServerKernel();
+    virtual ~Server();
 
     virtual void setup(int argc, char** argv);
     virtual void processMessage(const zmq::message_t& msg);
@@ -28,13 +30,14 @@ private:
 
 };
 
-
 template <typename T> void 
-ServerKernel::sendMessageToClients(T& data) {
+Server::sendMessageToClients(T& data) {
   // Now send the message to the server.
   zmq::message_t request( sizeof(T) );
   memcpy( (char*)request.data(), &data, sizeof(T) );
   publisher_->send( request );
 }
 
-#endif // FRAMEWORK_SERVERKERNEL_H__
+}
+
+#endif // FRAMEWORK_SERVER_H__

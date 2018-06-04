@@ -1,5 +1,5 @@
 
-#include <framework/kernel/clientkernel.hpp>
+#include <framework/online/client.hpp>
 
 #include <memory>
 #include <iostream>
@@ -8,12 +8,13 @@
 const std::string publisherEndPoint = "tcp://localhost:5556";
 const std::string listenerEndPoint = "tcp://localhost:5555";
 
+using namespace framework;
 
-ClientKernel::~ClientKernel()
+Client::~Client()
 {}
 
 void
-ClientKernel::setup(int argc, char** argv) {
+Client::setup(int argc, char** argv) {
   context_          = std::make_unique<zmq::context_t >( 1 );
   subscriber_ = std::make_unique<zmq::socket_t >( *context_, ZMQ_SUB );
   server_     = std::make_unique<zmq::socket_t >( *context_, ZMQ_REQ );
@@ -38,17 +39,17 @@ ClientKernel::setup(int argc, char** argv) {
 }
 
 void
-ClientKernel::processMessage(const zmq::message_t& msg) {
+Client::processMessage(const zmq::message_t& msg) {
   // Do nothing.
 }
 
 void 
-ClientKernel::updateFrame() {
+Client::updateFrame() {
   // Do nothing.
 }
 
 int
-ClientKernel::run() {
+Client::run() {
   while (1) {
     _pollForServerMessage();
     updateFrame();
@@ -58,7 +59,7 @@ ClientKernel::run() {
 }
 
 void
-ClientKernel::_pollForServerMessage() {
+Client::_pollForServerMessage() {
   // Check for an updated board state.
   zmq::message_t msg;
   if (subscriber_->recv(&msg, ZMQ_NOBLOCK)) {

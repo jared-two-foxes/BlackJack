@@ -1,5 +1,5 @@
 
-#include <blackjack/timer.h>
+#include <blackjack/timer.hpp>
 
 void wait(timer_t& t, float secondsToWait) {
   time_t now = std::time(nullptr);
