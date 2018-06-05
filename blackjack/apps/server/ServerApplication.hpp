@@ -9,11 +9,18 @@
 #include <blackjack/table.hpp>
 #include <blackjack/timer.hpp>
 
-// #include <stateless++/state_machine.hpp>
+#include <shared/roomcontroller.hpp>
 
 #include <functional>
 #include <map>
 
+class Application;
+
+struct MessageFn {
+  Application& owner;
+  explicit MessageFn(Application& app) : owner(app) {}
+  virtual void operator()(message_body_t) {};
+};
 
 class Application
 {
@@ -21,8 +28,10 @@ private:
   framework::VirtualTerminal vt_;
   
   framework::Server server_;
-  framework::Kernel<MessageTypes, std::function<void (message_body_t)> > kernel_;
+  framework::Kernel<MessageTypes, MessageFn > kernel_;
   
+  RoomController rooms_;
+
 public:
   Application();
   ~Application();

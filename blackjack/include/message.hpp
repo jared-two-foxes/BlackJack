@@ -5,6 +5,7 @@
 
 struct message_body_t 
 {
+  int table_id;
   int player_id;
   int hand_id;
 };
